@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/influencer") ||
       pathname.startsWith("/business")
     ) {
-      return NextResponse.redirect(new URL("/signup", request.url));
+      return NextResponse.redirect(new URL("/auth", request.url));
     }
     // Allow public routes like "/" or "/signup"
     return NextResponse.next();
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
 
   // If no role is found (edge case), treat as unauthenticated
   if (!userRole) {
-    return NextResponse.redirect(new URL("/signup", request.url));
+    return NextResponse.redirect(new URL("/auth", request.url));
   }
 
   // Protect /influencer routes
@@ -60,7 +60,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect logged-in users away from public pages like "/" or "/signup"
-  if (pathname === "/" || pathname === "/signup") {
+  if (pathname === "/" || pathname === "/auth") {
     const redirectPath =
       userRole === "influencer" ? "/influencer" : "/business";
     return NextResponse.redirect(new URL(redirectPath, request.url));
