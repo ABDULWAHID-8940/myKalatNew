@@ -149,7 +149,7 @@ const InfluencerSection = () => {
 
   return (
     <section className="md:py-16 py-8 bg-white" id="influencers">
-      <div className="container mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="md:text-3xl text-2xl font-bold mb-4">
             Browse Top Influencers

@@ -157,7 +157,7 @@ function MessagesPage() {
           }`}
         >
           {selectedConversation ? (
-            <>
+            <div className="flex flex-col h-screen">
               {/* Chat Header with back button on mobile */}
               <div className="border-b border-gray-200 px-4 py-3 flex items-center flex-shrink-0">
                 <Button
@@ -194,8 +194,8 @@ function MessagesPage() {
               </div>
 
               {/* Scrollable Messages Area */}
-              <div className="flex-1 overflow-hidden">
-                <ScrollArea className="h-full p-4 bg-gray-50">
+              <div className="flex-1 overflow-y-auto bg-gray-50 px-4">
+                <ScrollArea className="h-full px-4 bg-gray-50">
                   {currentMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-500">
                       <MessageSquare size={48} className="mb-4 opacity-50" />
@@ -213,8 +213,8 @@ function MessagesPage() {
                               : "justify-start"
                           }`}
                         >
-                          <Card
-                            className={`max-w-xs lg:max-w-md min-w-30 px-4 py-2 ${
+                          <div
+                            className={`max-w-xs lg:max-w-md min-w-30 rounded-md px-2 py-1 ${
                               message.senderId === user?.id
                                 ? "bg-primary text-white border-primary"
                                 : "bg-white border-gray-200"
@@ -230,7 +230,7 @@ function MessagesPage() {
                             >
                               {formatTime(message.createdAt)}
                             </p>
-                          </Card>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -265,7 +265,7 @@ function MessagesPage() {
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500 bg-gray-50">
               <div className="text-center">
