@@ -32,10 +32,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const allowedUnits = ["birr", "customers", "sales", "tickets", "audience"];
-    if (!unit || !allowedUnits.includes(unit)) {
-      return NextResponse.json({ message: "Invalid unit" }, { status: 400 });
-    }
 
     const sd = new Date(startDate);
     const ed = new Date(estimatedEndDate);
@@ -135,8 +131,6 @@ export async function PATCH(request: NextRequest) {
         "tickets",
         "audience",
       ];
-      if (!allowedUnits.includes(unit))
-        return NextResponse.json({ message: "Invalid unit" }, { status: 400 });
       update.unit = unit;
     }
     if (startDate) {
