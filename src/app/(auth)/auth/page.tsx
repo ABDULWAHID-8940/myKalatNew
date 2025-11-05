@@ -171,7 +171,7 @@ const AuthForm = () => {
                         : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
-                    Influencer
+                    Digital marketer
                   </button>
                   <button
                     type="button"
@@ -187,9 +187,7 @@ const AuthForm = () => {
                 </div>
               </div>
               <label className="block text-sm font-medium my-2">
-                {userType === "influencer"
-                  ? "Influencer Name"
-                  : "Business Name"}
+                {userType === "influencer" ? "Your Name" : "Business Name"}
               </label>
               <div className="relative">
                 {userType === "business" ? (

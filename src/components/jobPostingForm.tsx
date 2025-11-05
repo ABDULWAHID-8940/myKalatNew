@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectLabel, SelectGroup } from "@/components/ui/select";
+import { useUser } from "@/context/User";
 
 // import { useToast } from "@/components/ui/use-toast";
 import { useJobs } from "@/context/Job";
@@ -21,30 +23,53 @@ const JobPostingForm = () => {
   // const { toast } = useToast();
   const { addJob } = useJobs();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUser();
 
-  // Hardcoded goals for now - replace with actual goal fetching later
-  const hardcodedGoals = [
-    {
-      id: "64f1a2b3c4d5e6f7g8h9i0j",
-      name: "Increase Instagram Followers by 10,000",
-      unit: "audience",
-    },
-    {
-      id: "64f1a2b3c4d5e6f7g8h9i0k",
-      name: "Generate 50,000 Birr in Sales",
-      unit: "birr",
-    },
-    {
-      id: "64f1a2b3c4d5e6f7g8h9i0l",
-      name: "Acquire 500 New Customers",
-      unit: "customers",
-    },
-    {
-      id: "64f1a2b3c4d5e6f7g8h9i0m",
-      name: "Sell 200 Event Tickets",
-      unit: "tickets",
-    },
-  ];
+  // Fetch goals for the current business instead of hardcoding
+  type Goal = {
+    _id: string;
+    businessId: string;
+    targetValue: number;
+    currentValue: number;
+    unit: string;
+    startDate: string | Date;
+    estimatedEndDate: string | Date;
+    isCompleted?: boolean;
+    name?: string; // if API provides a name/title
+  };
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalsLoading, setGoalsLoading] = useState(false);
+  const [goalsError, setGoalsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ignore = false;
+    (async () => {
+      setGoalsLoading(true);
+      setGoalsError(null);
+      try {
+        const res = await fetch(`/api/goal?businessId=${user?.id}`);
+        if (!res.ok) throw new Error("Failed to fetch goals");
+        const data: Goal[] = await res.json();
+        if (!ignore) setGoals(Array.isArray(data) ? data : []);
+      } catch (e: any) {
+        if (!ignore) setGoalsError(e?.message || "Failed to load goals");
+      } finally {
+        if (!ignore) setGoalsLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [user?.id]);
+
+  const formatGoalLabel = (g: Goal) => {
+    if (g.name) return g.name;
+    const end = new Date(g.estimatedEndDate);
+    const endStr = isNaN(end.getTime())
+      ? ""
+      : ` by ${end.toLocaleDateString()}`;
+    return `Target: ${g.targetValue} ${g.unit}${endStr}`;
+  };
 
   // Form state
   const [formData, setFormData] = useState({
@@ -183,13 +208,27 @@ const JobPostingForm = () => {
                         <SelectValue placeholder="Select a goal to contribute to" />
                       </SelectTrigger>
                       <SelectContent>
-                        {hardcodedGoals.map((goal) => (
-                          <SelectItem key={goal.id} value={goal.id}>
-                            {goal.name}
-                          </SelectItem>
-                        ))}
+                        {goalsLoading && (
+                          <SelectGroup>
+                            <SelectLabel>Loading goals...</SelectLabel>
+                          </SelectGroup>
+                        )}
+                        {!goalsLoading && goals.length === 0 && (
+                          <SelectGroup>
+                            <SelectLabel>No goals available</SelectLabel>
+                          </SelectGroup>
+                        )}
+                        {!goalsLoading &&
+                          goals.map((goal) => (
+                            <SelectItem key={goal._id} value={goal._id}>
+                              {formatGoalLabel(goal)}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
+                    {goalsError && (
+                      <p className="text-xs text-red-600 mt-1">{goalsError}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">

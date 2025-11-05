@@ -5,7 +5,7 @@ export interface IBusinessGoal extends Document {
   businessId: mongoose.Types.ObjectId;
   targetValue: number;
   currentValue: number;
-  unit: "birr" | "customers" | "sales" | "tickets" | "audience";
+  unit: string;
   startDate: Date;
   estimatedEndDate: Date;
   createdAt: Date;
@@ -25,11 +25,10 @@ const BusinessGoalSchema = new Schema<IBusinessGoal>(
     currentValue: { type: Number, default: 0, min: 0 },
     unit: {
       type: String,
-      enum: ["birr", "customers", "sales", "tickets", "audience"],
       required: true,
     },
     startDate: { type: Date, required: true },
-    isCompleted: {type: Boolean, required: false},
+    isCompleted: { type: Boolean, required: false },
     estimatedEndDate: { type: Date, required: true },
   },
   { timestamps: true }

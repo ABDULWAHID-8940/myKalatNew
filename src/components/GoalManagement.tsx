@@ -101,12 +101,20 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [saving, setSaving] = useState(false);
+  const PRESET_UNITS = [
+    "birr",
+    "customers",
+    "sales",
+    "tickets",
+    "audience",
+  ] as const;
 
   // Form state
   const [form, setForm] = useState({
     targetValue: "",
     currentValue: "",
     unit: "birr",
+    customUnit: "",
     startDate: "",
     estimatedEndDate: "",
   });
@@ -116,6 +124,7 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
       targetValue: "",
       currentValue: "",
       unit: "birr",
+      customUnit: "",
       startDate: "",
       estimatedEndDate: "",
     });
@@ -160,13 +169,20 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
       return;
     }
 
+    const effectiveUnit =
+      form.unit === "custom" ? form.customUnit.trim() : form.unit;
+    if (!effectiveUnit) {
+      toast.error("Please enter a unit");
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
         businessId,
         targetValue,
         currentValue,
-        unit: form.unit,
+        unit: effectiveUnit,
         startDate: form.startDate,
         estimatedEndDate: form.estimatedEndDate,
       };
@@ -207,13 +223,20 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
       return;
     }
 
+    const effectiveUnit =
+      form.unit === "custom" ? form.customUnit.trim() : form.unit;
+    if (!effectiveUnit) {
+      toast.error("Please enter a unit");
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
         goalId: editingGoal._id,
         targetValue,
         currentValue,
-        unit: form.unit,
+        unit: effectiveUnit,
         startDate: form.startDate,
         estimatedEndDate: form.estimatedEndDate,
       };
@@ -262,7 +285,8 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
     setForm({
       targetValue: goal.targetValue.toString(),
       currentValue: goal.currentValue.toString(),
-      unit: goal.unit,
+      unit: PRESET_UNITS.includes(goal.unit as any) ? goal.unit : "custom",
+      customUnit: PRESET_UNITS.includes(goal.unit as any) ? "" : goal.unit,
       startDate: toDate(goal.startDate).toISOString().slice(0, 10),
       estimatedEndDate: toDate(goal.estimatedEndDate)
         .toISOString()
@@ -305,7 +329,9 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="targetValue">Target Value</Label>
+                  <Label htmlFor="targetValue" className="mb-1">
+                    Target Value
+                  </Label>
                   <Input
                     id="targetValue"
                     type="number"
@@ -322,7 +348,9 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="unit">Unit</Label>
+                  <Label htmlFor="unit" className="mb-1">
+                    Unit
+                  </Label>
                   <Select
                     value={form.unit}
                     onValueChange={(value) =>
@@ -333,6 +361,7 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="custom">Custom</SelectItem>
                       <SelectItem value="birr">Birr</SelectItem>
                       <SelectItem value="customers">Customers</SelectItem>
                       <SelectItem value="sales">Sales</SelectItem>
@@ -340,11 +369,32 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                       <SelectItem value="audience">Audience</SelectItem>
                     </SelectContent>
                   </Select>
+                  {form.unit === "custom" && (
+                    <div className="mt-2">
+                      <Label htmlFor="customUnit" className="mb-1">
+                        Custom unit
+                      </Label>
+                      <Input
+                        id="customUnit"
+                        placeholder="e.g. signups, downloads, etc."
+                        value={form.customUnit}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            customUnit: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="currentValue">Current Value (Optional)</Label>
+                <Label htmlFor="currentValue" className="mb-1">
+                  Current Value (Optional)
+                </Label>
                 <Input
                   id="currentValue"
                   type="number"
@@ -362,7 +412,9 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="startDate">Start Date</Label>
+                  <Label htmlFor="startDate" className="mb-1">
+                    Start Date
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
@@ -377,7 +429,9 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="estimatedEndDate">Target Date</Label>
+                  <Label htmlFor="estimatedEndDate" className="mb-1">
+                    Target Date
+                  </Label>
                   <Input
                     id="estimatedEndDate"
                     type="date"
@@ -548,6 +602,7 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="custom">Custom</SelectItem>
                     <SelectItem value="birr">Birr</SelectItem>
                     <SelectItem value="customers">Customers</SelectItem>
                     <SelectItem value="sales">Sales</SelectItem>
@@ -555,6 +610,23 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                     <SelectItem value="audience">Audience</SelectItem>
                   </SelectContent>
                 </Select>
+                {form.unit === "custom" && (
+                  <div className="mt-2">
+                    <Label htmlFor="edit-customUnit">Custom unit</Label>
+                    <Input
+                      id="edit-customUnit"
+                      placeholder="e.g. signups, downloads, etc."
+                      value={form.customUnit}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          customUnit: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
