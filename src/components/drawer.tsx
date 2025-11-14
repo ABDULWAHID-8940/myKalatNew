@@ -74,10 +74,10 @@ export function InfluencerDetailPopup({
   const [showMessageInput, setShowMessageInput] = useState(false);
   const [showContractDialog, setShowContractDialog] = useState(false);
 
-  const socialMedia: SocialMedia =
-    typeof influencer.socialMedia === "string"
-      ? JSON.parse(influencer.socialMedia)
-      : influencer.socialMedia;
+  // const socialMedia: SocialMedia =
+  //   typeof influencer. === "string"
+  //     ? JSON.parse(influencer.socialMedia)
+  //     : influencer.socialMedia;
 
   const handleSendInitialMessage = async () => {
     if (!messageInput.trim()) return;
@@ -175,7 +175,7 @@ export function InfluencerDetailPopup({
                 </div>
               </div>
 
-              {/* Social Media */}
+              {/* Social Media
               <div>
                 <h4 className="font-semibold mb-3">Social Media</h4>
                 <div className="space-y-2">
@@ -196,7 +196,7 @@ export function InfluencerDetailPopup({
                     );
                   })}
                 </div>
-              </div>
+              </div> */}
 
               {/* Message Input (conditionally shown) */}
               {showMessageInput && (

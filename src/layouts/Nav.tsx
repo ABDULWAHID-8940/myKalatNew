@@ -66,15 +66,15 @@ export default function Nav({ path }: { path: string }) {
 
             {path === "business" && (
               <Link
-                href={"/business/proposals"}
+                href={"/business/myjobs"}
                 className={`hover:text-primary transition px-5 py-2  ${
-                  isActive("/proposals")
+                  isActive("/myjobs")
                     ? "text-primary underline-offset-8 underline"
                     : ""
                 }`}
                 onClick={closeMobileMenu}
               >
-                Proposals
+                myJobs
               </Link>
             )}
 
@@ -148,15 +148,15 @@ export default function Nav({ path }: { path: string }) {
 
             {path === "business" && (
               <Link
-                href={"/business/proposals"}
+                href={"/business/myjobs"}
                 className={`text-lg px-4 py-3 rounded-lg ${
-                  isActive("/proposals")
+                  isActive("/myjobs")
                     ? "bg-blue-50 text-primary font-medium"
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
                 onClick={closeMobileMenu}
               >
-                Proposals
+                myJobs
               </Link>
             )}
 

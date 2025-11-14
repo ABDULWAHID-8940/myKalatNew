@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
-import { ContractDialog } from "@/components/contract-dialog"; // Import the ContractDialog
+import { useState, useEffect, use } from "react";
+import { ContractDialog } from "@/components/contract-dialog";
 import { useProposals } from "@/context/Proposal";
 import { useMessages } from "@/context/Message";
 import { useUser } from "@/context/User";
@@ -10,9 +10,8 @@ import { useRouter } from "next/navigation";
 import { InfluencerDetailPopup } from "@/components/drawer";
 import { useInfluencers } from "@/context/Influencer";
 import Image from "next/image";
+import { useAllProposals } from "@/hooks/useProposals";
 import {
-  MessageSquare,
-  Send,
   Clipboard,
   CheckCircle,
   MessageCircle,
@@ -33,7 +32,12 @@ import {
 
 type ProposalStatus = "pending" | "accepted" | "rejected";
 
-function ProposalsPage() {
+export default function ProposalsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showMessageInput, setShowMessageInput] = useState(false);
@@ -42,7 +46,9 @@ function ProposalsPage() {
   const router = useRouter();
   const { influencers } = useInfluencers();
 
-  const { specificProposal: proposals, updateProposalStatus } = useProposals();
+  const { updateProposalStatus } = useProposals();
+  const { data: allProposals, isLoading } = useAllProposals(id);
+
   const { startNewConversation, sendMessage } = useMessages();
 
   const { user } = useUser();
@@ -126,7 +132,7 @@ function ProposalsPage() {
         {/* Content Area */}
         <div className="bg-white rounded-b-2xl shadow-sm min-h-[500px]">
           <div className="p-3 sm:p-6">
-            {proposals.length === 0 ? (
+            {allProposals?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                 <FileText size={48} className="mb-4 opacity-50" />
                 <p className="text-lg">No proposals yet</p>
@@ -134,14 +140,14 @@ function ProposalsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {proposals
-                  .filter((proposal) => proposal.status !== "rejected") // Filter out rejected proposals
+                {allProposals
+                  ?.filter((proposal) => proposal.status !== "rejected") // Filter out rejected proposals
                   .map((proposal) => (
                     <div
                       key={proposal._id}
                       className="px-2 sm:px-6 rounded-lg border border-gray-400 hover:shadow-sm transition-all"
                     >
-                      <InfluencerDetailPopup
+                      {/* <InfluencerDetailPopup
                         influencer={
                           influencers.filter(
                             (i) => i._id === proposal.influencerId._id
@@ -149,7 +155,7 @@ function ProposalsPage() {
                         } // Replace with actual influencer ID
                         open={isPopupOpen}
                         onClose={() => setIsPopupOpen(false)}
-                      />
+                      /> */}
                       <div className="flex flex-col">
                         <Accordion type="single" collapsible>
                           <AccordionItem value="item-1">
@@ -373,5 +379,3 @@ function ProposalsPage() {
     </div>
   );
 }
-
-export default ProposalsPage;

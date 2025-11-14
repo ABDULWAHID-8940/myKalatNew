@@ -9,6 +9,12 @@ export const useNewJobs = () =>
     queryFn: () => apiClient<IJob[]>(`/job/new`),
   });
 
+export const useMyJobs = () =>
+  useQuery<IJob[], ApiError>({
+    queryKey: ["my-jobs"],
+    queryFn: () => apiClient<IJob[]>(`/job/my`),
+  });
+
 export const useMyAppliedJobs = () =>
   useQuery<IJob[], ApiError>({
     queryKey: ["applied-jobs"],

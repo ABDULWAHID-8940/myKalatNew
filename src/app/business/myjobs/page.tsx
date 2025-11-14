@@ -1,13 +1,14 @@
 "use client";
-import { useJobs } from "@/context/Job";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useMyJobs } from "@/hooks/useJobs";
+import Link from "next/link";
 
 export default function JobManagementPage() {
-  const { specificJob } = useJobs();
+  const { data: jobs, isLoading } = useMyJobs();
 
-  if (specificJob.length === 0) {
+  if (jobs?.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen">
         <h1 className="text-xl font-semibold">No Job Found</h1>
@@ -17,7 +18,7 @@ export default function JobManagementPage() {
 
   return (
     <div className="container flex flex-col gap-5 mx-auto px-4 py-6 max-w-4xl">
-      {specificJob.map((job) => (
+      {jobs?.map((job) => (
         <div
           key={job._id}
           className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border"
@@ -125,8 +126,10 @@ export default function JobManagementPage() {
               <div className="flex flex-col sm:flex-row gap-2">
                 {job.status === "open" && (
                   <>
-                    <Button size="sm" className="text-xs">
-                      View Proposals ({job.proposalsSubmitted.length})
+                    <Button asChild size="sm" className="text-xs">
+                      <Link href={`/business/proposals/${job._id}`}>
+                        View Proposals ({job.proposalsSubmitted.length})
+                      </Link>
                     </Button>
                     <Button variant="destructive" size="sm" className="text-xs">
                       Close

@@ -74,6 +74,11 @@ export async function GET(request: NextRequest) {
   await dbConnect(); // Ensure the database is connected
 
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const url = new URL(request.url);
     const jobId = url.searchParams.get("jobId");
     const influencerId = url.searchParams.get("influencerId");
@@ -96,7 +101,6 @@ export async function GET(request: NextRequest) {
     } = {};
     if (jobId) query.jobId = jobId;
     if (influencerId) query.influencerId = influencerId;
-
     const proposals = await Proposal.find(query)
       .populate({
         path: "jobId",
@@ -105,7 +109,12 @@ export async function GET(request: NextRequest) {
       })
       .lean();
 
-    return NextResponse.json(proposals, { status: 200 }); // Return the fetched proposals
+    console.log(
+      "Fetched proposalsssssssssssssssssssssssssssssssssssssssssssss:",
+      proposals
+    ); // Log the fetched proposals
+
+    return NextResponse.json({ data: proposals }, { status: 200 }); // Return the fetched proposals
   } catch (error) {
     console.error("Error fetching proposals:", error); // Log the error for debugging
     return NextResponse.json(

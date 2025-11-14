@@ -32,3 +32,18 @@ export interface IJob {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface Ipro {
+  _id: string;
+  jobId: IJob;
+  influencerId: {
+    _id: string;
+    name: string;
+    image?: string;
+  };
+  message: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
