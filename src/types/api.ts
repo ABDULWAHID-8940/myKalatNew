@@ -47,3 +47,27 @@ export interface Ipro {
   updatedAt: string;
   __v: number;
 }
+
+export interface IUser {
+  _id: string;
+  name: string;
+  email: string;
+  image: string;
+  role?: string;
+  coverImage?: string;
+  location?: string;
+  socialMedia?: string;
+  verified?: boolean;
+  rating?: number;
+  totalEarnings?: number;
+  bio?: string;
+  price?: number;
+  companyName?: string;
+  goals?: string[];
+  industry?: string;
+  businessPhone?: string;
+  businessSize?: "startup" | "small" | "medium" | "large";
+  businessVerified?: boolean;
+  onboarded?: boolean;
+  savedJobs?: string[];
+}
