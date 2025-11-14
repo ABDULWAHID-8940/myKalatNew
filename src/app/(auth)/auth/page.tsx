@@ -108,7 +108,7 @@ const AuthForm = () => {
           setPassword("");
           setName("");
           setConfirmPassword("");
-          // Let the callback URL handle the redirection based on role
+          window.location.href = "/api/auth/callback";
         },
         onError: (ctx) => {
           setError(ctx.error.message || "sign-up failed");
