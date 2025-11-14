@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateJobApplication } from "@/hooks/useJobs";
 import {
   Select,
   SelectContent,
@@ -15,15 +16,12 @@ import {
 } from "@/components/ui/select";
 import { SelectLabel, SelectGroup } from "@/components/ui/select";
 import { useUser } from "@/context/User";
-
-// import { useToast } from "@/components/ui/use-toast";
-import { useJobs } from "@/context/Job";
+import { useRouter } from "next/navigation";
 
 const JobPostingForm = () => {
-  // const { toast } = useToast();
-  const { addJob } = useJobs();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const { user } = useUser();
+  const createJobMutation = useCreateJobApplication();
 
   // Fetch goals for the current business instead of hardcoding
   type Goal = {
@@ -75,7 +73,7 @@ const JobPostingForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    price: "",
+    price: 0,
     location: "Tecno",
     goalId: "",
     goalContributionPercent: "100",
@@ -107,13 +105,12 @@ const JobPostingForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
       // Prepare job data with string types only
       const jobData = {
         title: formData.title,
         description: formData.description,
-        price: formData.price.toString(), // Convert to string if needed
+        price: formData.price,
         location: formData.location,
         goalId: formData.goalId || undefined, // Only include if selected
         goalContributionPercent: formData.goalId
@@ -122,11 +119,23 @@ const JobPostingForm = () => {
         socialMedia: selectedPlatforms.map((platform) => ({ platform })), // Array of {platform: string}
       };
 
-      await addJob(jobData);
+      await createJobMutation.mutate(jobData, {
+        onSuccess: () => {
+          setFormData({
+            title: "",
+            description: "",
+            price: 0,
+            location: "Tecno",
+            goalId: "",
+            goalContributionPercent: "100",
+            socialMedia: [],
+          });
+          setSelectedPlatforms([]);
+          router.push("/business/myjobs");
+        },
+      });
     } catch (error) {
       console.error("Error posting job:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -275,9 +284,12 @@ const JobPostingForm = () => {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting || selectedPlatforms.length === 0}
+                  disabled={
+                    createJobMutation.isPending ||
+                    selectedPlatforms.length === 0
+                  }
                 >
-                  {isSubmitting ? "Posting..." : "Post Job"}
+                  {createJobMutation.isPending ? "Posting..." : "Post Job"}
                 </Button>
               </form>
             </CardContent>

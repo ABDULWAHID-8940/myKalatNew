@@ -10,13 +10,18 @@ export async function POST(request: NextRequest) {
   await dbConnect();
 
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const postedBy = session.user.id;
     const {
       title,
       description,
       price,
       location,
       socialMedia,
-      postedBy,
       statusInPercent,
       goalId,
       goalContributionPercent,

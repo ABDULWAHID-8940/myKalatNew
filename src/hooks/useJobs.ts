@@ -65,3 +65,19 @@ export const useApplyToJob = () => {
     },
   });
 };
+
+export const useCreateJobApplication = () => {
+  const qc = useQueryClient();
+  return useMutation<IJob, unknown, Partial<IJob>>({
+    mutationFn: (payload) =>
+      apiClient<IJob>(`/job`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () => {
+      toast.success("job posted sucressfully!");
+      qc.invalidateQueries({ queryKey: ["my-jobs"] });
+    },
+    onError: () => toast.error("Failed to create job please try again."),
+  });
+};
