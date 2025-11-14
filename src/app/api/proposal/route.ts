@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import Proposal from "@/models/ProposalSchema";
 import Job from "@/models/JobSchema";
+import { User } from "@/models/UserSchema";
 import dbConnect from "@/lib/mongoose";
 import { auth } from "@/lib/auth";
 import mongoose from "mongoose";
@@ -103,16 +104,11 @@ export async function GET(request: NextRequest) {
     if (influencerId) query.influencerId = influencerId;
     const proposals = await Proposal.find(query)
       .populate({
-        path: "jobId",
-        select: "title description price location socialMedia status",
-        model: Job,
+        path: "influencerId",
+        select: "name image",
+        model: User,
       })
       .lean();
-
-    console.log(
-      "Fetched proposalsssssssssssssssssssssssssssssssssssssssssssss:",
-      proposals
-    ); // Log the fetched proposals
 
     return NextResponse.json({ data: proposals }, { status: 200 }); // Return the fetched proposals
   } catch (error) {
