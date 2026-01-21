@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ImagePlusIcon, XIcon, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Edit, ImagePlusIcon, Loader2, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
 import { authClient } from "@/lib/auth-client";
 
 export default function EditBuissnesProfile({ user }: { user: any }) {
@@ -39,18 +40,18 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setBio(user.bio || "");
-      setLocation(user.location || "");
-      setImage(user.image || "");
-      setCoverImage(user.coverImage || "");
-      setCompanyName(user.companyName || "");
-      setIndustry(user.industry || "");
-      setBusinessPhone(user.businessPhone || "");
-      setBusinessSize(user.businessSize || "");
-      setOnboarded(user.onboarded || false);
-    }
+    if (!user) return;
+
+    setName(user.name || "");
+    setBio(user.bio || "");
+    setLocation(user.location || "");
+    setImage(user.image || "");
+    setCoverImage(user.coverImage || "");
+    setCompanyName(user.companyName || "");
+    setIndustry(user.industry || "");
+    setBusinessPhone(user.businessPhone || "");
+    setBusinessSize(user.businessSize || "");
+    setOnboarded(!!user.onboarded);
   }, [user]);
 
   const handleSave = async () => {
@@ -68,7 +69,6 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
         businessSize,
         onboarded,
       });
-      // Optionally, refetch or show success
     } catch (error) {
       console.error("Failed to update profile", error);
     } finally {
@@ -79,7 +79,10 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Edit profile</Button>
+        <Button variant="outline" size="sm">
+          <Edit size={16} />
+          <span className="hidden sm:block">Edit profile</span>
+        </Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg h-[90svh] sm:h-auto sm:max-h-[90vh] overflow-hidden [&>button:last-child]:top-3.5">
         <DialogHeader className="contents space-y-0 text-left">
@@ -109,6 +112,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name</Label>
                 <Input
@@ -119,6 +123,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="bio">Bio</Label>
                 <Textarea
@@ -129,6 +134,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
                 <Input
@@ -139,6 +145,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="industry">Industry</Label>
                 <Input
@@ -149,6 +156,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="businessPhone">Business Phone</Label>
                 <Input
@@ -159,6 +167,7 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   disabled={isSaving}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="businessSize">Business Size</Label>
                 <Select
@@ -177,10 +186,11 @@ export default function EditBuissnesProfile({ user }: { user: any }) {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="onboarded">Onboarded</Label>
                 <Select
-                  value={onboarded.toString()}
+                  value={String(onboarded)}
                   onValueChange={(value) => setOnboarded(value === "true")}
                   disabled={isSaving}
                 >
@@ -222,27 +232,21 @@ function ProfileBg({
   setCoverImage: (url: string) => void;
   disabled?: boolean;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const uploadMutation = useCloudinaryUpload();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadMutation.mutateAsync(file);
       setCoverImage(data.url);
     } catch (error) {
       console.error("Upload failed", error);
-    } finally {
-      setUploading(false);
     }
   };
+
+  const uploading = uploadMutation.isPending;
 
   return (
     <div className="h-24 sm:h-32">
@@ -309,27 +313,21 @@ function Avatar({
   setImage: (url: string) => void;
   disabled?: boolean;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const uploadMutation = useCloudinaryUpload();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadMutation.mutateAsync(file);
       setImage(data.url);
     } catch (error) {
       console.error("Upload failed", error);
-    } finally {
-      setUploading(false);
     }
   };
+
+  const uploading = uploadMutation.isPending;
 
   return (
     <div className="-mt-10 px-6">

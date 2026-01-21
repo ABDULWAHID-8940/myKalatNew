@@ -1,117 +1,83 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import OriginSlider  from "./originSlider";
+import React, { useMemo, useState } from "react";
+import OriginSlider from "./originSlider";
+import type { IGoal } from "@/types/api";
+import {
+  useCreateGoal,
+  useDeleteGoal,
+  useGoals,
+  useUpdateGoal,
+} from "@/hooks/useGoals";
 
 interface GoalsSectionProps {
   businessId: string;
 }
 
 function GoalsSection({ businessId }: GoalsSectionProps) {
-  // Goals state
-  const [goals, setGoals] = useState<any[]>([]);
+  const { data, isLoading } = useGoals(businessId);
+  const goals = useMemo(() => (Array.isArray(data) ? data : []), [data]);
+  const goalsWithId = useMemo(
+    () => goals.filter((g): g is IGoal & { _id: string } => !!g._id),
+    [goals],
+  );
+
   const [newGoal, setNewGoal] = useState({
     targetValue: 0,
     unit: "birr",
     startDate: "",
     estimatedEndDate: "",
   });
-  const [isGoalsLoading, setIsGoalsLoading] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [tempProgress, setTempProgress] = useState<number>(0);
 
-  // Load goals when businessId changes
-  useEffect(() => {
-    if (businessId) {
-      fetchGoals(businessId);
-    }
-  }, [businessId]);
-
-  async function fetchGoals(businessId: string) {
-    setIsGoalsLoading(true);
-    try {
-      const res = await fetch(`/api/goal?businessId=${businessId}`);
-      if (!res.ok) throw new Error("Failed to fetch goals");
-      const data = await res.json();
-      console.log("Fetched goals:", data);
-      setGoals(data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsGoalsLoading(false);
-    }
-  }
+  const createGoalMutation = useCreateGoal();
+  const deleteGoalMutation = useDeleteGoal();
+  const updateGoalMutation = useUpdateGoal();
 
   async function createGoal(e: React.FormEvent) {
     e.preventDefault();
     if (!businessId) return;
-    try {
-      const payload = {
+    createGoalMutation.mutate(
+      {
         businessId,
         targetValue: Number(newGoal.targetValue),
         unit: newGoal.unit,
-        startDate: new Date(), // Set start date to now instead of user input
+        startDate: new Date().toISOString(),
         estimatedEndDate: newGoal.estimatedEndDate,
-      };
-      const res = await fetch(`/api/goal`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to create goal");
-      await fetchGoals(businessId);
-      setNewGoal({
-        targetValue: 0,
-        unit: "birr",
-        startDate: "",
-        estimatedEndDate: "",
-      });
-      toast.success("Goal created");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to create goal");
-    }
+      },
+      {
+        onSuccess: () => {
+          setNewGoal({
+            targetValue: 0,
+            unit: "birr",
+            startDate: "",
+            estimatedEndDate: "",
+          });
+        },
+      },
+    );
   }
 
   async function deleteGoal(goalId: string) {
     if (!confirm("Delete this goal?")) return;
-    try {
-      const res = await fetch(`/api/goal`, {
-        method: "DELETE",
-        body: JSON.stringify({ goalId }),
-      });
-      if (!res.ok) throw new Error("Failed to delete");
-      await fetchGoals(businessId);
-      toast.success("Goal deleted");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete goal");
-    }
+    deleteGoalMutation.mutate({ goalId, businessId });
   }
 
-  async function updateGoal(goalId: string, updates: any) {
-    try {
-      const res = await fetch(`/api/goal`, {
-        method: "PATCH",
-        body: JSON.stringify({ goalId, ...updates }),
-      });
-      if (!res.ok) throw new Error("Failed to update");
-      await fetchGoals(businessId);
-      toast.success("Goal updated");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update goal");
-    }
+  async function updateGoal(goalId: string, updates: Partial<IGoal>) {
+    updateGoalMutation.mutate({ goalId, businessId, ...updates });
   }
 
-  const startEditing = (goal: any) => {
+  const startEditing = (goal: IGoal & { _id: string }) => {
     setEditingGoalId(goal._id);
     setTempProgress(Math.round((goal.currentValue / goal.targetValue) * 100));
   };
 
   const saveProgress = (goalId: string) => {
-    const goal = goals.find(g => g._id === goalId);
+    const goal = goalsWithId.find((g) => g._id === goalId);
     if (goal) {
-      const newCurrentValue = Math.round((tempProgress / 100) * goal.targetValue);
+      const newCurrentValue = Math.round(
+        (tempProgress / 100) * goal.targetValue,
+      );
       updateGoal(goalId, { currentValue: newCurrentValue });
     }
     setEditingGoalId(null);
@@ -147,16 +113,14 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
   return (
     <div className="mb-6 md:mb-8">
       <h3 className="text-lg font-semibold mb-3">Goals</h3>
-      {isGoalsLoading ? (
+      {isLoading ? (
         <div>Loading goals...</div>
       ) : (
         <div className="space-y-3">
           {goals.length === 0 && (
-            <div className="text-sm text-muted-foreground">
-              No goals yet.
-            </div>
+            <div className="text-sm text-muted-foreground">No goals yet.</div>
           )}
-          {goals.map((g) => (
+          {goalsWithId.map((g) => (
             <div
               key={g._id}
               className="flex items-center justify-between p-3 border rounded"
@@ -215,7 +179,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
                         updateGoal(g._id, {
                           currentValue: Math.min(
                             g.targetValue,
-                            Math.round(g.currentValue + g.targetValue * 0.05)
+                            Math.round(g.currentValue + g.targetValue * 0.05),
                           ),
                         })
                       }
@@ -259,9 +223,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
           />
           <select
             value={newGoal.unit}
-            onChange={(e) =>
-              setNewGoal({ ...newGoal, unit: e.target.value })
-            }
+            onChange={(e) => setNewGoal({ ...newGoal, unit: e.target.value })}
             className="px-2 py-1 border rounded"
           >
             <option value="birr">birr</option>
@@ -284,6 +246,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
           <button
             className="px-3 py-1 bg-primary text-white rounded"
             type="submit"
+            disabled={createGoalMutation.isPending}
           >
             Create Goal
           </button>

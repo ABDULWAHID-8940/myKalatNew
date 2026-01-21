@@ -199,21 +199,23 @@ export default function ProposalsPage({
 
                         {/* Optional Message Input */}
                         {showMessageInput && (
-                          <div className="space-y-3">
+                          <div className="relative">
                             <Textarea
                               value={messageInput}
                               onChange={(e) => setMessageInput(e.target.value)}
                               placeholder={`Write your message to ${proposal.influencerId.name}...`}
-                              className="min-h-[100px]"
+                              className="min-h-[100px] pr-32"
                             />
-                            <div className="flex gap-2 justify-end">
+                            <div className="absolute bottom-2 right-2 flex gap-2">
                               <Button
                                 variant="outline"
+                                size="sm"
                                 onClick={() => setShowMessageInput(false)}
                               >
                                 Cancel
                               </Button>
                               <Button
+                                size="sm"
                                 onClick={() =>
                                   handleSendInitialMessage(
                                     proposal.influencerId._id

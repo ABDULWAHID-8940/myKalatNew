@@ -1,25 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Progress } from "@/components/ui/progress";
+import type { IGoal } from "@/types/api";
+import { useGoals } from "@/hooks/useGoals";
 
 type PaceStatus = "ahead" | "on track" | "behind" | "not started";
 
-export interface Goal {
-  businessId: string;
-  targetValue: number;
-  currentValue: number;
-  unit: string;
-  startDate: string | Date;
-  estimatedEndDate: string | Date;
-  createdAt?: string | Date;
-  _id?: string;
-  isCompleted?: boolean;
-}
-
 interface GoalDisplayProps {
   businessId?: string;
-  goals?: Goal[];
+  goals?: IGoal[];
 }
 
 function toDate(d: string | Date): Date {
@@ -30,7 +20,7 @@ function clamp(n: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, n));
 }
 
-function computePace(goal: Goal): {
+function computePace(goal: IGoal): {
   status: PaceStatus;
   expectedPercent: number;
   actualPercent: number;
@@ -83,42 +73,23 @@ export function GoalDisplay({
   businessId,
   goals: goalsProp,
 }: GoalDisplayProps) {
-  const [goals, setGoals] = useState<Goal[]>(goalsProp || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (goalsProp) {
-      setGoals(goalsProp);
-      return;
-    }
-    if (!businessId) return;
-    let ignore = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/goal?businessId=${businessId}`);
-        if (!res.ok) throw new Error("Failed to fetch goals");
-        const data: Goal[] = await res.json();
-        if (!ignore) setGoals(Array.isArray(data) ? data : []);
-      } catch (e: any) {
-        if (!ignore) setError(e?.message || "Failed to load goals");
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    })();
-    return () => {
-      ignore = true;
-    };
-  }, [businessId, goalsProp]);
+  const shouldFetch = !goalsProp && !!businessId;
+  const { data, isLoading, error } = useGoals(businessId, {
+    enabled: shouldFetch,
+  });
+  const goals = (goalsProp || (Array.isArray(data) ? data : [])) as IGoal[];
 
   const content = useMemo(() => {
-    if (loading)
+    if (isLoading)
       return (
         <div className="text-sm text-muted-foreground">Loading goals...</div>
       );
-    if (error) return <div className="text-sm text-red-600">{error}</div>;
+    if (error)
+      return (
+        <div className="text-sm text-red-600">
+          {(error as any)?.message || "Failed to load goals"}
+        </div>
+      );
     if (!goals.length)
       return (
         <div className="text-sm text-muted-foreground">No goals set yet.</div>
@@ -135,7 +106,7 @@ export function GoalDisplay({
               key={
                 g._id ||
                 `${g.businessId}-${String(g.startDate)}-${String(
-                  g.estimatedEndDate
+                  g.estimatedEndDate,
                 )}`
               }
               className="p-4 border rounded-lg bg-white"
@@ -169,10 +140,10 @@ export function GoalDisplay({
                     status === "ahead"
                       ? "text-emerald-600"
                       : status === "behind"
-                      ? "text-red-600"
-                      : status === "not started"
-                      ? "text-gray-600"
-                      : "text-blue-600"
+                        ? "text-red-600"
+                        : status === "not started"
+                          ? "text-gray-600"
+                          : "text-blue-600"
                   }`}
                 >
                   {status}
@@ -189,7 +160,7 @@ export function GoalDisplay({
         })}
       </div>
     );
-  }, [goals, loading, error]);
+  }, [goals, isLoading, error]);
 
   return <div>{content}</div>;
 }

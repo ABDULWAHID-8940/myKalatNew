@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit2, Trash2, Target } from "lucide-react";
-import toast from "react-hot-toast";
+import {
+  useCreateGoal,
+  useDeleteGoal,
+  useGoals,
+  useUpdateGoal,
+} from "@/hooks/useGoals";
 
 export interface Goal {
   businessId: string;
@@ -94,13 +99,19 @@ function computePace(goal: Goal): {
 }
 
 export function GoalManagement({ businessId }: GoalManagementProps) {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const goalsQuery = useGoals(businessId);
+  const goals = useMemo(
+    () => (Array.isArray(goalsQuery.data) ? goalsQuery.data : []),
+    [goalsQuery.data],
+  );
+
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-  const [saving, setSaving] = useState(false);
+  const createGoalMutation = useCreateGoal();
+  const updateGoalMutation = useUpdateGoal();
+  const deleteGoalMutation = useDeleteGoal();
+
   const PRESET_UNITS = [
     "birr",
     "customers",
@@ -130,29 +141,16 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
     });
   };
 
-  const loadGoals = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`/api/goal?businessId=${businessId}`);
-      if (!res.ok) throw new Error("Failed to fetch goals");
-      const data: Goal[] = await res.json();
-      setGoals(Array.isArray(data) ? data : []);
-    } catch (e: any) {
-      setError(e?.message || "Failed to load goals");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadGoals();
+    // keep behavior of clearing dialogs when business changes
+    setCreateDialogOpen(false);
+    setEditDialogOpen(false);
+    setEditingGoal(null);
   }, [businessId]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!businessId) {
-      toast.error("No business ID available");
       return;
     }
 
@@ -160,50 +158,35 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
     const currentValue = parseFloat(form.currentValue) || 0;
 
     if (!targetValue || targetValue <= 0) {
-      toast.error("Please enter a valid target value");
       return;
     }
 
     if (!form.startDate || !form.estimatedEndDate) {
-      toast.error("Please select start and end dates");
       return;
     }
 
     const effectiveUnit =
       form.unit === "custom" ? form.customUnit.trim() : form.unit;
     if (!effectiveUnit) {
-      toast.error("Please enter a unit");
       return;
     }
 
-    setSaving(true);
-    try {
-      const payload = {
+    createGoalMutation.mutate(
+      {
         businessId,
         targetValue,
         currentValue,
         unit: effectiveUnit,
         startDate: form.startDate,
         estimatedEndDate: form.estimatedEndDate,
-      };
-
-      const res = await fetch(`/api/goal`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Failed to create goal");
-
-      toast.success("Goal created successfully");
-      setCreateDialogOpen(false);
-      resetForm();
-      await loadGoals();
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to create goal");
-    } finally {
-      setSaving(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          setCreateDialogOpen(false);
+          resetForm();
+        },
+      },
+    );
   };
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -214,70 +197,43 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
     const currentValue = parseFloat(form.currentValue) || 0;
 
     if (!targetValue || targetValue <= 0) {
-      toast.error("Please enter a valid target value");
       return;
     }
 
     if (!form.startDate || !form.estimatedEndDate) {
-      toast.error("Please select start and end dates");
       return;
     }
 
     const effectiveUnit =
       form.unit === "custom" ? form.customUnit.trim() : form.unit;
     if (!effectiveUnit) {
-      toast.error("Please enter a unit");
       return;
     }
 
-    setSaving(true);
-    try {
-      const payload = {
+    updateGoalMutation.mutate(
+      {
         goalId: editingGoal._id,
+        businessId,
         targetValue,
         currentValue,
         unit: effectiveUnit,
         startDate: form.startDate,
         estimatedEndDate: form.estimatedEndDate,
-      };
-
-      const res = await fetch(`/api/goal`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Failed to update goal");
-
-      toast.success("Goal updated successfully");
-      setEditDialogOpen(false);
-      setEditingGoal(null);
-      resetForm();
-      await loadGoals();
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to update goal");
-    } finally {
-      setSaving(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false);
+          setEditingGoal(null);
+          resetForm();
+        },
+      },
+    );
   };
 
   const handleDelete = async (goalId: string) => {
     if (!confirm("Are you sure you want to delete this goal?")) return;
 
-    try {
-      const res = await fetch(`/api/goal`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ goalId }),
-      });
-
-      if (!res.ok) throw new Error("Failed to delete goal");
-
-      toast.success("Goal deleted successfully");
-      await loadGoals();
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to delete goal");
-    }
+    deleteGoalMutation.mutate({ goalId, businessId });
   };
 
   const openEditDialog = (goal: Goal) => {
@@ -295,15 +251,17 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
     setEditDialogOpen(true);
   };
 
-  if (loading) {
+  if (goalsQuery.isLoading) {
     return <div className="text-center py-8">Loading goals...</div>;
   }
 
-  if (error) {
+  if (goalsQuery.error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Button onClick={loadGoals}>Try Again</Button>
+        <p className="text-red-600 mb-4">
+          {(goalsQuery.error as any)?.message || "Failed to load goals"}
+        </p>
+        <Button onClick={() => goalsQuery.refetch()}>Try Again</Button>
       </div>
     );
   }
@@ -455,8 +413,8 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Creating..." : "Create Goal"}
+                <Button type="submit" disabled={createGoalMutation.isPending}>
+                  {createGoalMutation.isPending ? "Creating..." : "Create Goal"}
                 </Button>
               </div>
             </form>
@@ -543,10 +501,10 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
                           status === "ahead"
                             ? "text-emerald-600"
                             : status === "behind"
-                            ? "text-red-600"
-                            : status === "not started"
-                            ? "text-gray-600"
-                            : "text-blue-600"
+                              ? "text-red-600"
+                              : status === "not started"
+                                ? "text-gray-600"
+                                : "text-blue-600"
                         }`}
                       >
                         {status}
@@ -683,8 +641,8 @@ export function GoalManagement({ businessId }: GoalManagementProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Save Changes"}
+              <Button type="submit" disabled={updateGoalMutation.isPending}>
+                {updateGoalMutation.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

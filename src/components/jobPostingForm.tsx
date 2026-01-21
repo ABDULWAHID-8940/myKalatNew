@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateJobApplication } from "@/hooks/useJobs";
+import { useGoals } from "@/hooks/useGoals";
+import type { IGoal } from "@/types/api";
 import {
   Select,
   SelectContent,
@@ -23,44 +25,18 @@ const JobPostingForm = () => {
   const { user } = useUser();
   const createJobMutation = useCreateJobApplication();
 
-  // Fetch goals for the current business instead of hardcoding
-  type Goal = {
-    _id: string;
-    businessId: string;
-    targetValue: number;
-    currentValue: number;
-    unit: string;
-    startDate: string | Date;
-    estimatedEndDate: string | Date;
-    isCompleted?: boolean;
-    name?: string; // if API provides a name/title
-  };
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [goalsLoading, setGoalsLoading] = useState(false);
-  const [goalsError, setGoalsError] = useState<string | null>(null);
+  const {
+    data: goalsData,
+    isLoading: goalsLoading,
+    error: goalsErrorObj,
+  } = useGoals(user?.id);
+  const goals = useMemo(
+    () => (Array.isArray(goalsData) ? goalsData : []),
+    [goalsData],
+  );
+  const goalsError = (goalsErrorObj as any)?.message as string | undefined;
 
-  useEffect(() => {
-    let ignore = false;
-    (async () => {
-      setGoalsLoading(true);
-      setGoalsError(null);
-      try {
-        const res = await fetch(`/api/goal?businessId=${user?.id}`);
-        if (!res.ok) throw new Error("Failed to fetch goals");
-        const data: Goal[] = await res.json();
-        if (!ignore) setGoals(Array.isArray(data) ? data : []);
-      } catch (e: any) {
-        if (!ignore) setGoalsError(e?.message || "Failed to load goals");
-      } finally {
-        if (!ignore) setGoalsLoading(false);
-      }
-    })();
-    return () => {
-      ignore = true;
-    };
-  }, [user?.id]);
-
-  const formatGoalLabel = (g: Goal) => {
+  const formatGoalLabel = (g: IGoal & { name?: string }) => {
     if (g.name) return g.name;
     const end = new Date(g.estimatedEndDate);
     const endStr = isNaN(end.getTime())
@@ -87,17 +63,17 @@ const JobPostingForm = () => {
   >([]);
 
   const handlePlatformToggle = (
-    platform: "instagram" | "tiktok" | "telegram"
+    platform: "instagram" | "tiktok" | "telegram",
   ) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platform)
         ? prev.filter((p) => p !== platform)
-        : [...prev, platform]
+        : [...prev, platform],
     );
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -228,11 +204,16 @@ const JobPostingForm = () => {
                           </SelectGroup>
                         )}
                         {!goalsLoading &&
-                          goals.map((goal) => (
-                            <SelectItem key={goal._id} value={goal._id}>
-                              {formatGoalLabel(goal)}
-                            </SelectItem>
-                          ))}
+                          goals
+                            .filter(
+                              (g): g is IGoal & { _id: string } =>
+                                typeof g._id === "string" && g._id.length > 0,
+                            )
+                            .map((goal) => (
+                              <SelectItem key={goal._id} value={goal._id}>
+                                {formatGoalLabel(goal)}
+                              </SelectItem>
+                            ))}
                       </SelectContent>
                     </Select>
                     {goalsError && (
@@ -276,7 +257,7 @@ const JobPostingForm = () => {
                         >
                           {platform.charAt(0).toUpperCase() + platform.slice(1)}
                         </Button>
-                      )
+                      ),
                     )}
                   </div>
                 </div>

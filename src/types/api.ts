@@ -71,3 +71,16 @@ export interface IUser {
   onboarded?: boolean;
   savedJobs?: string[];
 }
+
+export interface IGoal {
+  _id?: string;
+  businessId: string;
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  startDate: string | Date;
+  estimatedEndDate: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  isCompleted?: boolean;
+}

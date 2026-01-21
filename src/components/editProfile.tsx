@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
+import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
 
 type SocialMediaLink = {
   platform: "instagram" | "tiktok" | "telegram";
@@ -49,7 +50,7 @@ export default function EditProfile({ user }: { user: any }) {
   const handleSocialChange = (
     index: number,
     field: keyof SocialMediaLink,
-    value: string
+    value: string,
   ) => {
     const newSocials = [...socialMedia];
     newSocials[index] = { ...newSocials[index], [field]: value };
@@ -219,25 +220,16 @@ function ProfileBg({
   coverImage: string;
   setCoverImage: (url: string) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const uploadMutation = useCloudinaryUpload();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadMutation.mutateAsync(file);
       setCoverImage(data.url);
     } catch (error) {
       console.error("Upload failed", error);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -264,7 +256,7 @@ function ProfileBg({
               accept="image/*"
               onChange={handleFileChange}
               className="sr-only"
-              disabled={uploading}
+              disabled={uploadMutation.isPending}
             />
           </label>
           {coverImage && (
@@ -290,25 +282,16 @@ function Avatar({
   image: string;
   setImage: (url: string) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const uploadMutation = useCloudinaryUpload();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const data = await uploadMutation.mutateAsync(file);
       setImage(data.url);
     } catch (error) {
       console.error("Upload failed", error);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -334,7 +317,7 @@ function Avatar({
             accept="image/*"
             onChange={handleFileChange}
             className="sr-only"
-            disabled={uploading}
+            disabled={uploadMutation.isPending}
           />
         </label>
       </div>
