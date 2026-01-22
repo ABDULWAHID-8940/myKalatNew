@@ -10,10 +10,11 @@ export default function RootLayout({
 }>) {
   return (
     <ReactQueryProvider>
-      <div className=" min-h-screen bg-gray-200 ">
+      <div className=" min-h-screen bg-gray-200 flex flex-col ">
         <UserProvider>
           <Nav path="influencer" />
-          {children}
+          <div className="flex-1">{children}</div>
+
           <Footer />
         </UserProvider>
       </div>

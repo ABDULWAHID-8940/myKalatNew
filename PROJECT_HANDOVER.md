@@ -1,6 +1,6 @@
 # PromoLink / Mykalat — Project Handover Documentation
 
-_Last updated: 2026-01-21_
+_Last updated: 2026-01-22_
 
 ## 1) What this project is
 
@@ -40,7 +40,7 @@ High-level capabilities present in the codebase:
 ## 3) Developer tooling
 
 - Package manager: npm (project includes `package-lock.json` only if you add it; currently not shown in tree)
-- Linting: `next lint` (note: the flat ESLint config in `eslint.config.mjs` is present but currently commented out)
+- Linting: `next lint` (note: the current `eslint.config.mjs` may behave like an empty config, so Next’s ESLint plugin warning can appear even when lint passes)
 - Styling: Tailwind v4 via PostCSS plugin (`postcss.config.mjs`)
 
 ## 4) Key project layout
@@ -52,8 +52,8 @@ High-level capabilities present in the codebase:
   - `src/app/influencer/` — Influencer area
   - `src/app/api/` — API routes (Route Handlers)
 - `src/components/` — Shared UI/components (includes `components/ui/` shadcn primitives)
-- `src/context/` — React context providers (domain state, messaging, etc.)
-- `src/hooks/` — Custom hooks
+- `src/context/` — Context providers (currently used for `User` only; other domain contexts were removed in favor of React Query hooks)
+- `src/hooks/` — Custom hooks (React Query hooks live here)
 - `src/lib/` — Integrations and utilities
   - `mongoose.ts` — MongoDB connection
   - `auth.ts` / `auth-client.ts` — better-auth configuration + client
@@ -122,6 +122,18 @@ Models live in `src/models/*`:
     - `user-{participantId}`: `conversation-updated`
 - Conversation creation route: `src/app/api/conversation/route.ts`
   - Creates/retrieves a 1:1 conversation and triggers `user-{id}`: `new-conversation`.
+
+Client-side messaging state is handled via React Query in `src/hooks/useMessages.ts` (not React Context).
+
+## 7.1) API response shape (important)
+
+`src/lib/apiClient.ts` expects API routes to return the shape:
+
+```json
+{ "data": "..." }
+```
+
+Several routes in `src/app/api/**` were updated to follow this consistently so React Query hooks can rely on `apiClient`.
 
 ## 8) File uploads (Cloudinary)
 
@@ -210,5 +222,8 @@ When deploying:
 
 - API routes: start in `src/app/api/*`.
 - Auth logic: `src/lib/auth.ts` (server) and `src/lib/auth-client.ts` (client).
-- Messaging: `src/app/api/message/route.ts`, `src/app/api/conversation/route.ts`, and `src/context/Message.tsx`.
+- Messaging: `src/app/api/message/route.ts`, `src/app/api/conversation/route.ts`, and `src/hooks/useMessages.ts`.
+- Proposals: `src/app/api/proposal/*` and `src/hooks/useProposals.ts`.
+- Contracts: `src/app/api/contract/*` and `src/hooks/useContracts.ts`.
+- Influencers: `src/app/api/influencer/route.ts` and `src/hooks/useInfluencers.ts`.
 - Uploads: `src/app/api/upload/route.ts`.
