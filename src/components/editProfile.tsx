@@ -18,12 +18,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
+import { parseSocialMediaLinks } from "@/lib/socialMedia";
 
 type SocialMediaLink = {
   platform: "instagram" | "tiktok" | "telegram";
   username: string;
   followers: string;
 };
+
+const ALLOWED_PLATFORMS: ReadonlySet<string> = new Set([
+  "instagram",
+  "tiktok",
+  "telegram",
+]);
 
 export default function EditProfile({ user }: { user: any }) {
   const [name, setName] = useState("");
@@ -43,7 +50,15 @@ export default function EditProfile({ user }: { user: any }) {
       setPrice(user.price || 0);
       setImage(user.image || "");
       setCoverImage(user.coverImage || "");
-      setSocialMedia(user.socialMedia ? JSON.parse(user.socialMedia) : []);
+      setSocialMedia(
+        parseSocialMediaLinks(user.socialMedia)
+          .filter((s) => ALLOWED_PLATFORMS.has(s.platform))
+          .map((s) => ({
+            platform: s.platform as SocialMediaLink["platform"],
+            username: s.username,
+            followers: s.followers,
+          })),
+      );
     }
   }, [user]);
 

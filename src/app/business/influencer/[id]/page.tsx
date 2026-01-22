@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetUser } from "@/hooks/useUser";
+import { parseSocialMediaLinks } from "@/lib/socialMedia";
 
 export default function ProposalsPage({
   params,
@@ -20,11 +21,7 @@ export default function ProposalsPage({
   const { id } = use(params);
   const { data: user, isLoading, error, refetch } = useGetUser(id);
 
-  const socials: {
-    platform: "instagram" | "tiktok" | "telegram";
-    followers: string;
-    username: string;
-  }[] = user?.socialMedia ? JSON.parse(user.socialMedia) : [];
+  const socials = parseSocialMediaLinks(user?.socialMedia);
 
   const fullStars = Math.floor(user?.rating || 0);
   const hasHalf = (user?.rating || 0) - fullStars >= 0.5;

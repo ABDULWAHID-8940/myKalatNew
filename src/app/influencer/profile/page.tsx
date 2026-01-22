@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ConfirmLogoutModal from "@/components/ConfirmLogoutModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { parseSocialMediaLinks } from "@/lib/socialMedia";
 
 function ProfilePage() {
   const { data: session, isPending, error, refetch } = authClient.useSession();
@@ -21,11 +22,7 @@ function ProfilePage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const rating = session?.user?.rating || 0;
-  const socials: {
-    platform: "instagram" | "tiktok" | "telegram";
-    followers: string;
-    username: string;
-  }[] = session?.user?.socialMedia ? JSON.parse(session.user.socialMedia) : [];
+  const socials = parseSocialMediaLinks(session?.user?.socialMedia);
 
   const fullStars = Math.floor(rating);
   const hasHalf = rating - fullStars >= 0.5;
