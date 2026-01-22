@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, use } from "react";
 import { ContractDialog } from "@/components/contract-dialog";
-import { useProposals } from "@/context/Proposal";
-import { useMessages } from "@/context/Message";
+import { useMessages } from "@/hooks/useMessages";
 import { useUser } from "@/context/User";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useInfluencers } from "@/context/Influencer";
+import { useInfluencers } from "@/hooks/useInfluencers";
 import Image from "next/image";
-import { useAllProposals } from "@/hooks/useProposals";
+import { useAllProposals, useUpdateProposalStatus } from "@/hooks/useProposals";
 import {
   Clipboard,
   CheckCircle,
@@ -39,9 +38,8 @@ export default function ProposalsPage({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const router = useRouter();
   const { influencers } = useInfluencers();
-
-  const { updateProposalStatus } = useProposals();
   const { data: allProposals, isLoading } = useAllProposals(id);
+  const { mutate: updateProposalStatus } = useUpdateProposalStatus(id);
 
   const { startNewConversation, sendMessage } = useMessages();
 
@@ -81,7 +79,7 @@ export default function ProposalsPage({
   };
 
   const handleCancel = (id: string) => {
-    updateProposalStatus(id, "rejected");
+    updateProposalStatus({ proposalId: id, status: "rejected" });
   };
 
   const handleMessage = () => {
@@ -218,7 +216,7 @@ export default function ProposalsPage({
                                 size="sm"
                                 onClick={() =>
                                   handleSendInitialMessage(
-                                    proposal.influencerId._id
+                                    proposal.influencerId._id,
                                   )
                                 }
                                 disabled={isSending || !messageInput.trim()}

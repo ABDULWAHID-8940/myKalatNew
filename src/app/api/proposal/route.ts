@@ -57,15 +57,15 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
-    return NextResponse.json(savedProposal, { status: 201 });
+    return NextResponse.json({ data: savedProposal }, { status: 201 });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
       { message: "Failed to create proposal", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     if (influencerId && !mongoose.Types.ObjectId.isValid(influencerId)) {
       return NextResponse.json(
         { message: "Invalid Influencer ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching proposals:", error); // Log the error for debugging
     return NextResponse.json(
       { message: "Failed to fetch proposals", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

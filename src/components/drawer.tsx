@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useMessages } from "@/context/Message";
+import { useMessages } from "@/hooks/useMessages";
 // import { useUser } from "@/context/User";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -86,7 +86,7 @@ export function InfluencerDetailPopup({
     try {
       // 1. Create new conversation
       const newConversation: Conversation = await startNewConversation(
-        influencer._id
+        influencer._id,
       );
 
       // 2. Send initial message

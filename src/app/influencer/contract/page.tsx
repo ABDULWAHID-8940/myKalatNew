@@ -1,6 +1,6 @@
 "use client";
 
-import { useContracts } from "@/context/Contract";
+import { useContracts } from "@/hooks/useContracts";
 import { useUser } from "@/context/User";
 import { useState } from "react";
 import { Clipboard, CheckCircle, XCircle, Clock, FileText } from "lucide-react";
@@ -24,7 +24,7 @@ export default function ContractsPage() {
   >({});
 
   const filteredContracts = contracts.filter(
-    (contract) => contract.status === activeTab
+    (contract) => contract.status === activeTab,
   );
 
   const getStatusIcon = (status: string) => {
@@ -46,7 +46,7 @@ export default function ContractsPage() {
       | "active"
       | "terminated"
       | "influencerConfirmed"
-      | "ownerConfirmed"
+      | "ownerConfirmed",
   ) => {
     // Map action types to loading state keys
     const loadingKey = {
@@ -65,7 +65,7 @@ export default function ContractsPage() {
       await updateContractStatus(
         contractId,
         actionType,
-        user?.role || "influencer"
+        user?.role || "influencer",
       );
     } catch (error) {
       console.error("Failed to update contract status:", error);
@@ -107,7 +107,7 @@ export default function ContractsPage() {
             >
               {tab}
             </button>
-          )
+          ),
         )}
       </div>
 

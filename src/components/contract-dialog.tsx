@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useContracts } from "@/context/Contract";
+import { useContracts } from "@/hooks/useContracts";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {

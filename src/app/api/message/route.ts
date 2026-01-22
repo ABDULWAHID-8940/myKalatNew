@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Invalid input data" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -54,9 +54,8 @@ export async function POST(request: Request) {
     // Trigger conversation updates
     await Promise.all(
       participants.map(async (participantId: string) => {
-        const updatedConv = await Conversation.findById(
-          conversationId
-        ).populate("participants");
+        const updatedConv =
+          await Conversation.findById(conversationId).populate("participants");
 
         await pusherServer
           .trigger(`user-${participantId}`, "conversation-updated", {
@@ -70,22 +69,22 @@ export async function POST(request: Request) {
                   _id: mongoose.Types.ObjectId;
                   name: string;
                   image: string;
-                }) => p._id.toString() !== participantId
+                }) => p._id.toString() !== participantId,
               )?.name,
               image: updatedConv?.participants.find(
                 (p: {
                   _id: mongoose.Types.ObjectId;
                   name: string;
                   image: string;
-                }) => p._id.toString() !== participantId
+                }) => p._id.toString() !== participantId,
               )?.image,
             },
           })
           .catch(console.error);
-      })
+      }),
     );
 
-    return NextResponse.json(savedMessage, { status: 201 });
+    return NextResponse.json({ data: savedMessage }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error }, { status: 500 });
   }

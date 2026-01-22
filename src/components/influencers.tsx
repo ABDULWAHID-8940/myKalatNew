@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, MapPin } from "lucide-react";
-import { useInfluencers } from "@/context/Influencer";
+import { useInfluencers } from "@/hooks/useInfluencers";
 import Link from "next/link";
 import { InfluencerDetailPopup } from "@/components/drawer";
 import { useState } from "react";
@@ -52,7 +52,7 @@ export const InfluencerCard = ({ influencer }: { influencer: Influencerm }) => {
 
       return total + (isNaN(followers) ? 0 : followers);
     },
-    0
+    0,
   );
 
   return (

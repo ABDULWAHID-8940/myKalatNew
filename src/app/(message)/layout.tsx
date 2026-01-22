@@ -1,11 +1,4 @@
-import Nav from "@/layouts/Nav";
-import { JobProvider } from "@/context/Job";
-import { ProposalProvider } from "@/context/Proposal";
-import { MessageProvider } from "@/context/Message";
-import { ContractProvider } from "@/context/Contract";
 import { UserProvider } from "@/context/User";
-import { EarningProvider } from "@/context/Earning";
-import Footer from "@/components/footer";
 import ReactQueryProvider from "@/QueryClientProvider";
 
 export default function RootLayout({
@@ -16,17 +9,7 @@ export default function RootLayout({
   return (
     <ReactQueryProvider>
       <div className=" min-h-screen bg-gray-200 ">
-        <UserProvider>
-          <JobProvider>
-            <ProposalProvider>
-              <ContractProvider>
-                <EarningProvider>
-                  <MessageProvider>{children}</MessageProvider>
-                </EarningProvider>
-              </ContractProvider>
-            </ProposalProvider>
-          </JobProvider>
-        </UserProvider>
+        <UserProvider>{children}</UserProvider>
       </div>
     </ReactQueryProvider>
   );

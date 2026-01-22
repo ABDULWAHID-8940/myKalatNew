@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   await dbConnect();
   const { id } = await params; // Extract the job ID from the dynamic route parameter
@@ -16,7 +16,7 @@ export async function GET(
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { error: "Invalid conversation ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,12 +27,12 @@ export async function GET(
       .sort({ createdAt: -1 })
       .select("-__v"); // Exclude version key
 
-    return NextResponse.json(messages);
+    return NextResponse.json({ data: messages });
   } catch (error) {
     console.error("Error fetching messages:", error);
     return NextResponse.json(
       { error: "Failed to load messages" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

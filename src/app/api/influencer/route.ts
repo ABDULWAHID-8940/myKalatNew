@@ -17,15 +17,15 @@ export async function GET() {
         location: 1,
         verified: 1,
         _id: 1,
-      }
+      },
     );
 
-    return NextResponse.json(influencers, { status: 200 });
+    return NextResponse.json({ data: influencers }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

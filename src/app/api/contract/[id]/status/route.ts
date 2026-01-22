@@ -4,7 +4,7 @@ import dbConnect from "@/lib/mongoose";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   await dbConnect();
 
@@ -24,7 +24,7 @@ export async function PATCH(
     ) {
       return NextResponse.json(
         { error: "Invalid status update" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,7 +32,7 @@ export async function PATCH(
     if (!contract) {
       return NextResponse.json(
         { error: "Contract not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -41,7 +41,7 @@ export async function PATCH(
       if (role !== "influencer") {
         return NextResponse.json(
           { error: "Only influencer can activate the contract" },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -69,12 +69,12 @@ export async function PATCH(
     }
 
     const updatedContract = await contract.save();
-    return NextResponse.json(updatedContract);
+    return NextResponse.json({ data: updatedContract });
   } catch (error) {
     console.error("Error updating contract:", error);
     return NextResponse.json(
       { error: "Failed to update contract" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

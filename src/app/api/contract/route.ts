@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (!senderId || !reciverId) {
       return NextResponse.json(
         { error: "Both senderId and reciverId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,14 +24,14 @@ export async function POST(request: Request) {
     if (!mongoose.Types.ObjectId.isValid(senderId)) {
       return NextResponse.json(
         { error: "Invalid senderId format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(reciverId)) {
       return NextResponse.json(
         { error: "Invalid reciverId format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,12 +44,12 @@ export async function POST(request: Request) {
       status: "draft", // Default status
     });
 
-    return NextResponse.json(newContract, { status: 201 });
+    return NextResponse.json({ data: newContract }, { status: 201 });
   } catch (error) {
     console.error("Error creating contract:", error); // Log the error for debugging
     return NextResponse.json(
       { error: "Failed to create contract" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
     if (!influencerId) {
       return NextResponse.json(
         { error: "An 'id' query parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -105,12 +105,12 @@ export async function GET(request: Request) {
     // })
     // .lean();
 
-    return NextResponse.json(contracts, { status: 200 });
+    return NextResponse.json({ data: contracts }, { status: 200 });
   } catch (error) {
     console.error("Error fetching contracts:", error);
     return NextResponse.json(
       { error: "Failed to fetch contracts" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

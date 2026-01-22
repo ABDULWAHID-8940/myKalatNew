@@ -10,7 +10,7 @@
 // } from "@/components/ui/select";
 // import { Search, X } from "lucide-react";
 import { InfluencerCard } from "@/components/influencers";
-import { useInfluencers } from "@/context/Influencer";
+import { useInfluencers } from "@/hooks/useInfluencers";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const InfluencerCardSkeleton = () => {

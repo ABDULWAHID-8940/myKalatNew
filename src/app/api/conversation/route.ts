@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     if (!Array.isArray(participantIds) || participantIds.length !== 2) {
       return NextResponse.json(
         { error: "Exactly 2 participant IDs required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     });
 
     if (existingConvo) {
-      return NextResponse.json(existingConvo, { status: 200 });
+      return NextResponse.json({ data: existingConvo }, { status: 200 });
     }
 
     // Create new conversation
@@ -40,15 +40,15 @@ export async function POST(request: Request) {
       await pusherServer.trigger(
         `user-${userId}`,
         "new-conversation", // Changed from 'new-chat'
-        savedConversation
+        savedConversation,
       );
     });
-    return NextResponse.json(savedConversation, { status: 201 });
+    return NextResponse.json({ data: savedConversation }, { status: 201 });
   } catch (error) {
     console.log(error);
     return NextResponse.json(
       { error: "Failed to create conversation" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "Invalid or missing user ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -121,12 +121,12 @@ export async function GET(request: NextRequest) {
       },
     ]);
 
-    return NextResponse.json(conversations, { status: 200 });
+    return NextResponse.json({ data: conversations }, { status: 200 });
   } catch (error) {
     console.error("Error fetching conversations:", error);
     return NextResponse.json(
       { error: "Failed to load conversations" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

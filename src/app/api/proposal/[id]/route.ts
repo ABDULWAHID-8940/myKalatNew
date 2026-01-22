@@ -14,7 +14,7 @@ const UpdateProposalSchema = z.object({
 // PATCH: Update a proposal (e.g., status or message)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   await dbConnect(); // Ensure the database is connected
 
@@ -25,7 +25,7 @@ export async function PATCH(
     if (!proposalId || !mongoose.Types.ObjectId.isValid(proposalId)) {
       return NextResponse.json(
         { message: "Invalid Proposal ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function PATCH(
     if (!validation.success) {
       return NextResponse.json(
         { message: "Validation failed", errors: validation.error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function PATCH(
     const updatedProposal = await Proposal.findByIdAndUpdate(
       proposalId,
       { ...(status && { status }) }, // Update only provided fields
-      { new: true } // Return the updated document
+      { new: true }, // Return the updated document
     )
       .populate({
         path: "jobId",
@@ -58,16 +58,16 @@ export async function PATCH(
     if (!updatedProposal) {
       return NextResponse.json(
         { message: "Proposal not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json(updatedProposal, { status: 200 }); // Return the updated proposal
+    return NextResponse.json({ data: updatedProposal }, { status: 200 }); // Return the updated proposal
   } catch (error) {
     console.error("Error updating proposal:", error); // Log the error for debugging
     return NextResponse.json(
       { message: "Failed to update proposal", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -75,7 +75,7 @@ export async function PATCH(
 // DELETE: Delete a proposal
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   await dbConnect(); // Ensure the database is connected
 
@@ -86,7 +86,7 @@ export async function DELETE(
     if (!proposalId || !mongoose.Types.ObjectId.isValid(proposalId)) {
       return NextResponse.json(
         { message: "Invalid Proposal ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -96,26 +96,23 @@ export async function DELETE(
     if (!deletedProposal) {
       return NextResponse.json(
         { message: "Proposal not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json(
-      { message: "Proposal deleted successfully", proposal: deletedProposal },
-      { status: 200 }
-    );
+    return NextResponse.json({ data: deletedProposal }, { status: 200 });
   } catch (error) {
     console.error("Error deleting proposal:", error); // Log the error for debugging
     return NextResponse.json(
       { message: "Failed to delete proposal", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   await dbConnect();
 
@@ -127,7 +124,7 @@ export async function POST(
     if (!session) {
       return NextResponse.json(
         { error: "authenticated failed" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -140,7 +137,7 @@ export async function POST(
     ) {
       return NextResponse.json(
         { message: "invalid Id Try again" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -160,7 +157,7 @@ export async function POST(
     if (alreadySubmitted) {
       return NextResponse.json(
         { message: "Proposal already submitted" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -184,14 +181,14 @@ export async function POST(
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
-    return NextResponse.json(savedProposal, { status: 201 });
+    return NextResponse.json({ data: savedProposal }, { status: 201 });
   } catch {
     return NextResponse.json(
       { message: "Failed to create proposal" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

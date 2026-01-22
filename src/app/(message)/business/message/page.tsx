@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useMessages } from "@/context/Message";
+import { useMessages } from "@/hooks/useMessages";
 import { useUser } from "@/context/User";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Send, User, ChevronLeft } from "lucide-react";
