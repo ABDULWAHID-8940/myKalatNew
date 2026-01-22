@@ -145,18 +145,10 @@ function ProfilePage() {
                 className="rounded-md object-cover"
               />
             ) : (
-              <div className="absolute inset-0 bg-muted">
-                <div className="absolute inset-y-0 right-0 flex items-center justify-end p-3 sm:p-6">
-                  <div className="max-w-[70%] rounded-md border border-gray-200 bg-white/90 px-3 py-2 text-right">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {session?.user?.name || "Influencer"}
-                    </div>
-                    <div className="mt-0.5 text-xs text-gray-600">
-                      Avg rating: {(session?.user?.rating || 0).toFixed(1)}
-                    </div>
-                    <div className="mt-0.5 text-xs text-gray-600">
-                      Avg price: {session?.user?.price?.toLocaleString()} Birr
-                    </div>
+              <div className="absolute inset-0 from-gray-900 to-teal-950 bg-gradient-to-r">
+                <div className="absolute inset-y-0 right-0 flex items-end justify-end p-3 sm:p-6">
+                  <div className="text-xl font-extralight font-serif text-gray-200">
+                    {session?.user?.name || "Influencer"}
                   </div>
                 </div>
               </div>
