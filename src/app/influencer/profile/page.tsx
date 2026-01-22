@@ -21,6 +21,8 @@ function ProfilePage() {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  const hasCoverImage = Boolean(session?.user?.coverImage);
+
   const rating = session?.user?.rating || 0;
   const socials = parseSocialMediaLinks(session?.user?.socialMedia);
 
@@ -135,15 +137,30 @@ function ProfilePage() {
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div>
           <AspectRatio ratio={4 / 1} className="bg-muted">
-            <Image
-              src={
-                session?.user?.coverImage ||
-                "https://res.cloudinary.com/dzcmadjl1/image/upload/v1696224863/default-cover-image_oqv6u9.jpg"
-              }
-              alt="Cover image"
-              fill
-              className="rounded-md object-cover"
-            />
+            {hasCoverImage ? (
+              <Image
+                src={session?.user?.coverImage as string}
+                alt="Cover image"
+                fill
+                className="rounded-md object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-muted">
+                <div className="absolute inset-y-0 right-0 flex items-center justify-end p-3 sm:p-6">
+                  <div className="max-w-[70%] rounded-md border border-gray-200 bg-white/90 px-3 py-2 text-right">
+                    <div className="text-sm font-semibold text-gray-900">
+                      {session?.user?.name || "Influencer"}
+                    </div>
+                    <div className="mt-0.5 text-xs text-gray-600">
+                      Avg rating: {(session?.user?.rating || 0).toFixed(1)}
+                    </div>
+                    <div className="mt-0.5 text-xs text-gray-600">
+                      Avg price: {session?.user?.price?.toLocaleString()} Birr
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="z-10 absolute top-3 right-3 flex gap-2">
               <EditProfile user={session?.user} />
               <Button
