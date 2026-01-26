@@ -227,3 +227,67 @@ When deploying:
 - Contracts: `src/app/api/contract/*` and `src/hooks/useContracts.ts`.
 - Influencers: `src/app/api/influencer/route.ts` and `src/hooks/useInfluencers.ts`.
 - Uploads: `src/app/api/upload/route.ts`.
+
+## 15) Database model — details & data flow
+
+### Entities
+
+- User: see [src/models/UserSchema.ts](src/models/UserSchema.ts)
+  - Collection: `user` (lowercase), `strict: false` to accommodate auth provider fields.
+  - Fields: `savedJobs` — array of ObjectId refs to `Job`.
+  - Role handling: stored alongside the auth user document; used to route (`business` vs `influencer`).
+
+- Job: see [src/models/JobSchema.ts](src/models/JobSchema.ts)
+  - Fields: `title`, `description`, `price`, optional `location`, `socialMedia.platform` (instagram|youtube|tiktok|telegram).
+  - Relations: `postedBy` → `User`, `goalId` → `BusinessGoal`, `hiredInfluencers` → [`User`], `proposalsSubmitted` → [{ `proposal` → `Proposal`, `influencer` → `User` }].
+  - Status: `open|in-progress|completed|cancelled`, progress via `statusInPercent`.
+
+- Proposal: see [src/models/ProposalSchema.ts](src/models/ProposalSchema.ts)
+  - Relations: `jobId` → `Job`, `influencerId` → `User`.
+  - Status: `pending|accepted|rejected`.
+
+- Contract: see [src/models/ContractSchema.ts](src/models/ContractSchema.ts)
+  - Core refs: `senderId` → `Proposal`, `reciverId` → `Proposal`.
+  - Terms: `price`, `socialMediaActions[]` (platform/actionType/quantity), `deadline`.
+  - Status: `draft|active|completed|terminated`; confirmations: `influencerConfirmed`, `ownerConfirmed`.
+  - Hook: `pre('save')` sets `activatedAt` on first active, `completedAt` when both parties confirm, `terminatedAt` when terminated.
+
+- Conversation: see [src/models/ConversationSchema.ts](src/models/ConversationSchema.ts)
+  - Fields: `participants` — exactly two distinct `User` ids; `lastMessage` with default.
+  - Indexes: `{ participants: 1 }`, `{ updatedAt: -1 }`.
+
+- Message: see [src/models/MessageSchema.ts](src/models/MessageSchema.ts)
+  - Relations: `conversationId` → `Conversation`, `senderId` → `User`.
+  - Fields: `content` (1–2000 chars), `status.delivered`, `status.read`.
+  - Indexes: `{ conversationId: 1, createdAt: -1 }`, `{ senderId: 1 }`.
+
+- Earnings: see [src/models/EarningSchema.ts](src/models/EarningSchema.ts)
+  - Relations: `userId` → `User`.
+  - Fields: `amount`, `status` (`paid|unpaid`), `paymentDate` required when `status=paid`, `source`, `metadata`.
+
+- BusinessGoal: see [src/models/Goal.ts](src/models/Goal.ts)
+  - Relations: `businessId` → `Business` (note: if business users live in the `user` collection, you may align this ref or introduce a dedicated `Business` model).
+  - Fields: `targetValue`, `currentValue`, `unit`, `startDate`, `estimatedEndDate`, optional `isCompleted`.
+
+### Relationships & flow
+
+- Jobs are posted by business users (`postedBy`), influencers submit proposals (`Proposal`).
+- Accepted proposals lead to contracts (`Contract`) that become `active` when appropriate confirmations occur.
+- Coordination happens via 1:1 conversations (`Conversation`) and messages (`Message`).
+- When payments are made, earnings entries (`Earnings`) are recorded for the influencer.
+- Goals: `Job.goalId` links a job to a business goal; `goalContributionPercent` and `statusInPercent` can be used (by business logic) to update `BusinessGoal.currentValue`.
+- Bookmarks: `User.savedJobs` store job bookmarks for quick access.
+
+### Indexes & integrity
+
+- Messaging indices support fast conversation lookups and chronological message retrieval.
+- Enums enforce domain consistency (social platforms, statuses).
+- Contract pre-save hook ensures timestamps and status transitions are coherent.
+
+### Operational notes
+
+- Connection management: see [src/lib/mongoose.ts](src/lib/mongoose.ts); global connection cache is used to avoid reconnections.
+- Collection naming: `User` model maps to the `user` collection.
+- Reference alignment: ensure `BusinessGoal.businessId` points to your chosen business representation (either a dedicated model or `User` with role=`business`).
+- API routes under `src/app/api/**` should create/read/update these relationships; see the corresponding handlers for exact flows.
+
