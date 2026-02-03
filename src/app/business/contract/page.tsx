@@ -113,13 +113,11 @@ export default function ContractsPage() {
         )}
       </div>
 
+      {/* Empty State */}
       {isLoading ? (
         <div className="grid gap-6">
           {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="border rounded-xl p-5 bg-white shadow-sm"
-            >
+            <div key={i} className="border rounded-xl p-5 bg-white shadow-sm">
               <div className="flex justify-between flex-wrap gap-4 items-start mb-4">
                 <div className="space-y-2">
                   <Skeleton className="h-6 w-40" />
@@ -148,10 +146,7 @@ export default function ContractsPage() {
             </div>
           ))}
         </div>
-      ) : (
-
-      {/* Empty State */}
-      {filteredContracts.length === 0 ? (
+      ) : filteredContracts.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
           <FileText size={48} className="mx-auto mb-4 opacity-50" />
           <p className="text-lg">
@@ -293,7 +288,6 @@ export default function ContractsPage() {
             );
           })}
         </div>
-      )}
       )}
     </div>
   );
