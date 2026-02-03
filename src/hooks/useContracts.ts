@@ -68,7 +68,9 @@ export const useContracts = () => {
       toast.success("Contract created");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create contract. Please try again.");
+      toast.error(
+        error.message || "Failed to create contract. Please try again.",
+      );
     },
   });
 
@@ -77,7 +79,11 @@ export const useContracts = () => {
     ApiError,
     {
       contractId: string;
-      status: "active" | "terminated" | "influencerConfirmed" | "ownerConfirmed";
+      status:
+        | "active"
+        | "terminated"
+        | "influencerConfirmed"
+        | "ownerConfirmed";
       role: "influencer" | "business";
     }
   >({
@@ -99,12 +105,19 @@ export const useContracts = () => {
 
   return {
     contracts: contractsQuery.data ?? [],
+    isLoading: contractsQuery.isLoading,
+    isFetching: contractsQuery.isFetching,
+    error: contractsQuery.error,
     fetchContracts: contractsQuery.refetch,
     createContract: createContractMutation.mutateAsync,
     updateContractStatus: (
       contractId: string,
-      status: "active" | "terminated" | "influencerConfirmed" | "ownerConfirmed",
-      role: "influencer" | "business"
+      status:
+        | "active"
+        | "terminated"
+        | "influencerConfirmed"
+        | "ownerConfirmed",
+      role: "influencer" | "business",
     ) => updateStatusMutation.mutateAsync({ contractId, status, role }),
     getContract: (contractId: string) =>
       (contractsQuery.data ?? []).find((c) => c._id === contractId),

@@ -88,10 +88,10 @@ export function ProgressGoal({
 
   // form state for create/edit
   const [form, setForm] = useState({
-    targetValue: 0,
+    targetValue: "",
     unit: "birr",
     estimatedEndDate: "",
-    currentValue: 0,
+    currentValue: "",
     startDate: "",
   });
 
@@ -112,10 +112,10 @@ export function ProgressGoal({
           <button
             onClick={() => {
               setForm({
-                targetValue: 0,
+                targetValue: "",
                 unit: "birr",
                 estimatedEndDate: "",
-                currentValue: 0,
+                currentValue: "",
                 startDate: "",
               });
               setShowCreateModal(true);
@@ -152,12 +152,12 @@ export function ProgressGoal({
                   title="Edit"
                   onClick={() => {
                     setForm({
-                      targetValue: g.targetValue,
+                      targetValue: String(g.targetValue),
                       unit: g.unit,
                       estimatedEndDate: toDate(g.estimatedEndDate)
                         .toISOString()
                         .slice(0, 10),
-                      currentValue: g.currentValue,
+                      currentValue: String(g.currentValue),
                       startDate: toDate(g.startDate).toISOString().slice(0, 10),
                     });
                     setShowEditId(g._id || null);
@@ -201,10 +201,14 @@ export function ProgressGoal({
     if (!businessId) {
       return;
     }
+
+    const targetValue = Number(form.targetValue);
+    if (!Number.isFinite(targetValue) || targetValue <= 0) return;
+
     createGoalMutation.mutate(
       {
         businessId,
-        targetValue: Number(form.targetValue),
+        targetValue,
         unit: form.unit,
         startDate: form.startDate
           ? new Date(form.startDate).toISOString()
@@ -221,11 +225,16 @@ export function ProgressGoal({
   async function handleEdit(e?: React.FormEvent) {
     if (e) e.preventDefault();
     if (!showEditId) return;
+
+    const currentValue =
+      form.currentValue.trim() === "" ? 0 : Number(form.currentValue);
+    if (!Number.isFinite(currentValue) || currentValue < 0) return;
+
     updateGoalMutation.mutate(
       {
         goalId: showEditId,
         businessId,
-        currentValue: Number(form.currentValue),
+        currentValue,
       },
       { onSuccess: () => setShowEditId(null) },
     );
@@ -249,7 +258,7 @@ export function ProgressGoal({
               type="number"
               value={form.targetValue}
               onChange={(e) =>
-                setForm((s) => ({ ...s, targetValue: Number(e.target.value) }))
+                setForm((s) => ({ ...s, targetValue: e.target.value }))
               }
               className="w-full border px-2 py-1 rounded mb-2"
             />
@@ -316,9 +325,9 @@ export function ProgressGoal({
             <input
               type="number"
               value={form.currentValue}
-              min={form.currentValue}
+              min={0}
               onChange={(e) =>
-                setForm((s) => ({ ...s, currentValue: Number(e.target.value) }))
+                setForm((s) => ({ ...s, currentValue: e.target.value }))
               }
               className="w-full border px-2 py-1 rounded mb-3"
             />

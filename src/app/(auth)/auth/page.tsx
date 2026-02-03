@@ -85,7 +85,7 @@ const AuthForm = () => {
           //   router.push(`/verify-email?email=${encodeURIComponent(email)}`);
           // }
         },
-      }
+      },
     );
   };
 
@@ -113,7 +113,7 @@ const AuthForm = () => {
         onError: (ctx) => {
           setError(ctx.error.message || "sign-up failed");
         },
-      }
+      },
     );
   };
 
@@ -165,7 +165,7 @@ const AuthForm = () => {
                   <button
                     type="button"
                     onClick={() => setUserType("influencer")}
-                    className={`py-2 px-4 border rounded-sm transition-colors ${
+                    className={`py-2 px-4 border rounded-sm transition-colors cursor-pointer ${
                       userType === "influencer"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-300 hover:border-gray-400"
@@ -176,7 +176,7 @@ const AuthForm = () => {
                   <button
                     type="button"
                     onClick={() => setUserType("business")}
-                    className={`py-2 px-4 border rounded-sm transition-colors ${
+                    className={`py-2 px-4 border rounded-sm transition-colors cursor-pointer ${
                       userType === "business"
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-gray-300 hover:border-gray-400"

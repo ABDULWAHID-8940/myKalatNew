@@ -81,3 +81,27 @@ export const useCreateJobApplication = () => {
     onError: () => toast.error("Failed to create job please try again."),
   });
 };
+
+export type DeleteJobInput = {
+  jobId: string;
+};
+
+export const useDeleteJob = () => {
+  const qc = useQueryClient();
+  return useMutation<{ message: string; job: IJob }, ApiError, DeleteJobInput>({
+    mutationFn: ({ jobId }) =>
+      apiClient<{ message: string; job: IJob }>(`/job/${jobId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      toast.success("Job deleted");
+      qc.invalidateQueries({ queryKey: ["my-jobs"] });
+      qc.invalidateQueries({ queryKey: ["new-jobs"] });
+      qc.invalidateQueries({ queryKey: ["saved-jobs"] });
+      qc.invalidateQueries({ queryKey: ["applied-jobs"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete job. Please try again.");
+    },
+  });
+};

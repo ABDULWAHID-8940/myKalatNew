@@ -164,6 +164,10 @@ export const useMessages = () => {
   return {
     conversations: conversationsQuery.data ?? [],
     currentMessages: currentMessagesQuery.data ?? [],
+    isLoadingConversations: conversationsQuery.isLoading,
+    isFetchingConversations: conversationsQuery.isFetching,
+    isLoadingMessages: currentMessagesQuery.isLoading,
+    isFetchingMessages: currentMessagesQuery.isFetching,
     selectedConversation,
     fetchConversations: () =>
       userId

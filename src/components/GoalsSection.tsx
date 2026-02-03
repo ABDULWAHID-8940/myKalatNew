@@ -22,7 +22,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
   );
 
   const [newGoal, setNewGoal] = useState({
-    targetValue: 0,
+    targetValue: "",
     unit: "birr",
     startDate: "",
     estimatedEndDate: "",
@@ -37,10 +37,14 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
   async function createGoal(e: React.FormEvent) {
     e.preventDefault();
     if (!businessId) return;
+
+    const targetValue = Number(newGoal.targetValue);
+    if (!Number.isFinite(targetValue) || targetValue <= 0) return;
+
     createGoalMutation.mutate(
       {
         businessId,
-        targetValue: Number(newGoal.targetValue),
+        targetValue,
         unit: newGoal.unit,
         startDate: new Date().toISOString(),
         estimatedEndDate: newGoal.estimatedEndDate,
@@ -48,7 +52,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
       {
         onSuccess: () => {
           setNewGoal({
-            targetValue: 0,
+            targetValue: "",
             unit: "birr",
             startDate: "",
             estimatedEndDate: "",
@@ -216,7 +220,7 @@ function GoalsSection({ businessId }: GoalsSectionProps) {
             onChange={(e) =>
               setNewGoal({
                 ...newGoal,
-                targetValue: Number(e.target.value),
+                targetValue: e.target.value,
               })
             }
             placeholder="Target"

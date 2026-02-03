@@ -132,7 +132,7 @@ function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto sm:mt-0 p-4 sm:px-6 max-w-5xl mb-20">
+    <div className="mx-auto sm:mt-0 p-4 sm:px-6 max-w-5xl min-h-[calc(100vh-15rem)] mb-20">
       {/* Header */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div>

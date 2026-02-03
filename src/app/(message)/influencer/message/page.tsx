@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function MessagesPage() {
   const [messageInput, setMessageInput] = useState("");
@@ -22,6 +23,8 @@ function MessagesPage() {
     fetchMessages,
     sendMessage,
     fetchConversations,
+    isLoadingConversations,
+    isLoadingMessages,
   } = useMessages();
   const router = useRouter();
   const { user } = useUser();
@@ -95,7 +98,7 @@ function MessagesPage() {
               </Link>
               Conversations
             </h2>
-            {conversations.length === 0 ? (
+            {!isLoadingConversations && conversations.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                 <MessageSquare size={24} className="mx-auto mb-2" />
                 <p>No conversations yet</p>
@@ -103,11 +106,29 @@ function MessagesPage() {
             ) : (
               <ScrollArea className="flex-1">
                 <div className="space-y-2">
-                  {conversations.map((convo) => (
-                    <button
-                      key={convo._id}
-                      onClick={() => handleSelectConversation(convo._id)}
-                      className={`
+                  {isLoadingConversations
+                    ? [0, 1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="w-full p-3 rounded-lg border border-gray-100"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="h-3 w-10" />
+                              </div>
+                              <Skeleton className="h-3 w-40" />
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    : conversations.map((convo) => (
+                        <button
+                          key={convo._id}
+                          onClick={() => handleSelectConversation(convo._id)}
+                          className={`
                         w-full p-3 rounded-lg transition-colors
                         ${
                           selectedConversation === convo._id
@@ -115,33 +136,33 @@ function MessagesPage() {
                             : "hover:bg-gray-100"
                         }
                       `}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage
-                            src={convo.otherUser.image}
-                            alt={convo.otherUser.name}
-                          />
-                          <AvatarFallback>
-                            <User size={20} className="text-gray-500" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0 text-left">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium text-gray-900 truncate">
-                              {convo.otherUser.name}
-                            </h3>
-                            <span className="text-xs text-gray-500 whitespace-nowrap">
-                              {formatTime(convo.updatedAt)}
-                            </span>
+                        >
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage
+                                src={convo.otherUser.image}
+                                alt={convo.otherUser.name}
+                              />
+                              <AvatarFallback>
+                                <User size={20} className="text-gray-500" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-medium text-gray-900 truncate">
+                                  {convo.otherUser.name}
+                                </h3>
+                                <span className="text-xs text-gray-500 whitespace-nowrap">
+                                  {formatTime(convo.updatedAt)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-500 truncate">
+                                {convo.lastMessage}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-500 truncate">
-                            {convo.lastMessage}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                        </button>
+                      ))}
                 </div>
               </ScrollArea>
             )}
@@ -192,7 +213,23 @@ function MessagesPage() {
 
               {/* Scrollable Messages */}
               <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
-                {currentMessages.length === 0 ? (
+                {isLoadingMessages ? (
+                  <div className="py-6 space-y-3">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
+                      >
+                        <div className="max-w-xs lg:max-w-md w-[70%]">
+                          <Skeleton className="h-10 w-full rounded-md" />
+                          <div className="mt-2 flex justify-end">
+                            <Skeleton className="h-3 w-12" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : currentMessages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
                     <MessageSquare size={48} className="mb-4 opacity-50" />
                     <p>No messages yet</p>
@@ -244,13 +281,13 @@ function MessagesPage() {
                       if (e.key === "Enter") handleSendMessage();
                     }}
                     placeholder="Type your message..."
-                    className="flex-1 rounded-full"
+                    className="flex-1 rounded-full h-12 px-4 text-base"
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={!messageInput.trim() || isSending}
                     size="sm"
-                    className="rounded-full min-w-[40px] h-10 w-10 p-0"
+                    className="rounded-full min-w-[48px] h-12 w-12 p-0"
                   >
                     {isSending ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

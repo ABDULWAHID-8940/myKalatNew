@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   await dbConnect();
 
@@ -26,7 +26,7 @@ export async function PATCH(
     const updatedJob = await Job.findByIdAndUpdate(
       id,
       { $addToSet: { hiredInfluencers: influencerId } },
-      { new: true }
+      { new: true },
     );
 
     // If the job is not found, return a 404 status
@@ -39,23 +39,49 @@ export async function PATCH(
     console.error("Error updating hired influencers:", error);
     return NextResponse.json(
       { message: "Failed to update hired influencers", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   await dbConnect(); // Ensure the database is connected
 
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json(
+        { message: "Not authenticated" },
+        { status: 401 },
+      );
+    }
+    if (session.user.role !== "business") {
+      return NextResponse.json(
+        { message: "Only businesses can delete jobs" },
+        { status: 403 },
+      );
+    }
+
     const { id } = await params; // Extract the job ID from the dynamic route parameter
 
     // Validate the job ID
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ message: "Invalid Job ID" }, { status: 400 });
+    }
+
+    const existingJob = await Job.findById(id);
+    if (!existingJob) {
+      return NextResponse.json({ message: "Job not found" }, { status: 404 });
+    }
+
+    if (String(existingJob.postedBy) !== session.user.id) {
+      return NextResponse.json(
+        { message: "You are not allowed to delete this job" },
+        { status: 403 },
+      );
     }
 
     // Attempt to delete the job from the database
@@ -66,10 +92,14 @@ export async function DELETE(
       return NextResponse.json({ message: "Job not found" }, { status: 404 });
     }
 
-    // Return a success message with the deleted job
     return NextResponse.json(
-      { message: "Job deleted successfully", job: deletedJob },
-      { status: 200 }
+      {
+        data: {
+          message: "Job deleted successfully",
+          job: deletedJob,
+        },
+      },
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error deleting job:", error);
@@ -78,14 +108,14 @@ export async function DELETE(
         message: "Failed to delete job",
         error,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   await dbConnect();
   try {
@@ -115,7 +145,7 @@ export async function GET(
     console.error("Error fetching jobs:", error);
     return NextResponse.json(
       { message: "Failed to fetch jobs", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

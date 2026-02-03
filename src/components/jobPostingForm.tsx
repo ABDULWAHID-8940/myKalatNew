@@ -19,6 +19,8 @@ import {
 import { SelectLabel, SelectGroup } from "@/components/ui/select";
 import { useUser } from "@/context/User";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 const JobPostingForm = () => {
   const router = useRouter();
@@ -49,7 +51,7 @@ const JobPostingForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    price: 0,
+    price: "",
     location: "Tecno",
     goalId: "",
     goalContributionPercent: "100",
@@ -60,7 +62,7 @@ const JobPostingForm = () => {
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<
     Array<"instagram" | "tiktok" | "telegram">
-  >([]);
+  >(["tiktok"]);
 
   const handlePlatformToggle = (
     platform: "instagram" | "tiktok" | "telegram",
@@ -82,11 +84,20 @@ const JobPostingForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (formData.price.trim() === "") {
+        return;
+      }
+
+      const numericPrice = Number(formData.price);
+      if (!Number.isFinite(numericPrice) || numericPrice < 0) {
+        return;
+      }
+
       // Prepare job data with string types only
       const jobData = {
         title: formData.title,
         description: formData.description,
-        price: formData.price,
+        price: numericPrice,
         location: formData.location,
         goalId: formData.goalId || undefined, // Only include if selected
         goalContributionPercent: formData.goalId
@@ -100,13 +111,13 @@ const JobPostingForm = () => {
           setFormData({
             title: "",
             description: "",
-            price: 0,
+            price: "",
             location: "Tecno",
             goalId: "",
             goalContributionPercent: "100",
             socialMedia: [],
           });
-          setSelectedPlatforms([]);
+          setSelectedPlatforms(["tiktok"]);
           router.push("/business/myjobs");
         },
       });
@@ -241,24 +252,32 @@ const JobPostingForm = () => {
 
                 <div className="space-y-2">
                   <Label>Required Social Media Platforms *</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {(["instagram", "tiktok", "telegram"] as const).map(
-                      (platform) => (
-                        <Button
-                          className="text-xs sm:text-base px-1.5"
-                          key={platform}
-                          type="button"
-                          variant={
-                            selectedPlatforms.includes(platform)
-                              ? "default"
-                              : "outline"
-                          }
-                          onClick={() => handlePlatformToggle(platform)}
-                        >
-                          {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                        </Button>
-                      ),
-                    )}
+                  <div className="rounded-md border bg-background p-2">
+                    <div className="flex flex-wrap gap-2">
+                      {(["instagram", "tiktok", "telegram"] as const).map(
+                        (platform) => {
+                          const selected = selectedPlatforms.includes(platform);
+                          return (
+                            <Button
+                              key={platform}
+                              type="button"
+                              variant="outline"
+                              aria-pressed={selected}
+                              onClick={() => handlePlatformToggle(platform)}
+                              className={cn(
+                                "h-9 rounded-full px-3 text-xs sm:text-sm gap-2",
+                                selected &&
+                                  "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+                              )}
+                            >
+                              {selected && <Check className="h-4 w-4" />}
+                              {platform.charAt(0).toUpperCase() +
+                                platform.slice(1)}
+                            </Button>
+                          );
+                        },
+                      )}
+                    </div>
                   </div>
                 </div>
 

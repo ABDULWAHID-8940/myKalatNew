@@ -14,15 +14,15 @@ export default function JobLists() {
 
   const savedIdSet = useMemo(
     () => new Set((savedJobs ?? []).map((j) => j._id)),
-    [savedJobs]
+    [savedJobs],
   );
   const appliedIdSet = useMemo(
     () => new Set((appliedJobs ?? []).map((j) => j._id)),
-    [appliedJobs]
+    [appliedJobs],
   );
 
   return (
-    <div className="min-h-screen bg-gray-200 p-4">
+    <div className="min-h-screen bg-gray-200 p-4 pb-20">
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
         <div className=" mb-4">
@@ -35,15 +35,24 @@ export default function JobLists() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-auto sm:w-120 grid-cols-3 mb-2 ">
-            <TabsTrigger value="match" className="flex items-center gap-2">
+            <TabsTrigger
+              value="match"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <TrendingUp className="w-4 h-4" />
               Matchs
             </TabsTrigger>
-            <TabsTrigger value="applied" className="flex items-center gap-2">
+            <TabsTrigger
+              value="applied"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <Briefcase className="w-4 h-4" />
               Applied
             </TabsTrigger>
-            <TabsTrigger value="saved" className="flex items-center gap-2">
+            <TabsTrigger
+              value="saved"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <Bookmark className="w-4 h-4" />
               Saved
             </TabsTrigger>

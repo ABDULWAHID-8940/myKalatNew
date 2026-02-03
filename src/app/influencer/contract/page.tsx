@@ -4,6 +4,7 @@ import { useContracts } from "@/hooks/useContracts";
 import { useUser } from "@/context/User";
 import { useState } from "react";
 import { Clipboard, CheckCircle, XCircle, Clock, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Spinner = () => (
   <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
@@ -11,9 +12,9 @@ const Spinner = () => (
 
 export default function ContractsPage() {
   const { user } = useUser();
-  const { contracts, updateContractStatus } = useContracts();
+  const { contracts, updateContractStatus, isLoading } = useContracts();
   const [activeTab, setActiveTab] = useState<
-    "draft" | "active" | "completed" | "terminated"
+    "all" | "draft" | "active" | "completed" | "terminated"
   >("active");
 
   const [loadingStates, setLoadingStates] = useState<
@@ -23,9 +24,10 @@ export default function ContractsPage() {
     >
   >({});
 
-  const filteredContracts = contracts.filter(
-    (contract) => contract.status === activeTab,
-  );
+  const filteredContracts =
+    activeTab === "all"
+      ? contracts
+      : contracts.filter((contract) => contract.status === activeTab);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -86,7 +88,7 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8">
+    <div className="container max-w-5xl min-h-[calc(100vh-10rem)] mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
         <Clipboard size={24} />
         Contract Management
@@ -94,12 +96,12 @@ export default function ContractsPage() {
 
       {/* Status Tabs */}
       <div className="flex flex-wrap gap-2 border-b pb-2 mb-6">
-        {(["active", "draft", "completed", "terminated"] as const).map(
+        {(["all", "active", "draft", "completed", "terminated"] as const).map(
           (tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 text-sm rounded-md font-medium capitalize transition-all duration-150 ${
+              className={`px-3 py-1 text-sm rounded-md font-medium capitalize transition-all duration-150 cursor-pointer ${
                 activeTab === tab
                   ? "bg-primary text-white shadow"
                   : "text-gray-600 hover:text-primary"
@@ -111,11 +113,46 @@ export default function ContractsPage() {
         )}
       </div>
 
-      {/* Empty State */}
-      {filteredContracts.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-6">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="border rounded-xl p-5 bg-white shadow-sm">
+              <div className="flex justify-between flex-wrap gap-4 items-start mb-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-4 w-48" />
+                </div>
+                <Skeleton className="h-6 w-24" />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-10/12" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-7 w-20" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Skeleton className="h-8 w-28" />
+                <Skeleton className="h-8 w-28" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredContracts.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
           <FileText size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg">No {activeTab} contracts found</p>
+          <p className="text-lg">
+            {activeTab === "all"
+              ? "No contracts found"
+              : `No ${activeTab} contracts found`}
+          </p>
         </div>
       ) : (
         <div className="grid gap-6">

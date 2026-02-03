@@ -36,7 +36,7 @@ export default function EditProfile({ user }: { user: any }) {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState<string>("");
   const [image, setImage] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [socialMedia, setSocialMedia] = useState<SocialMediaLink[]>([]);
@@ -47,7 +47,7 @@ export default function EditProfile({ user }: { user: any }) {
       setName(user.name || "");
       setBio(user.bio || "");
       setLocation(user.location || "");
-      setPrice(user.price || 0);
+      setPrice(user.price === 0 || user.price ? String(user.price) : "");
       setImage(user.image || "");
       setCoverImage(user.coverImage || "");
       setSocialMedia(
@@ -87,11 +87,12 @@ export default function EditProfile({ user }: { user: any }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const numericPrice = price.trim() === "" ? 0 : Number(price);
       await authClient.updateUser({
         name,
         bio,
         location,
-        price,
+        price: Number.isFinite(numericPrice) ? numericPrice : 0,
         image,
         coverImage,
         socialMedia: JSON.stringify(socialMedia),
@@ -159,7 +160,7 @@ export default function EditProfile({ user }: { user: any }) {
                   id="price"
                   type="number"
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
+                  onChange={(e) => setPrice(e.target.value)}
                   placeholder="0"
                 />
               </div>
@@ -192,8 +193,14 @@ export default function EditProfile({ user }: { user: any }) {
                       placeholder="Followers"
                       value={social.followers}
                       onChange={(e) =>
-                        handleSocialChange(index, "followers", e.target.value)
+                        handleSocialChange(
+                          index,
+                          "followers",
+                          e.target.value.replace(/\D/g, ""),
+                        )
                       }
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                     />
                     <Button
                       variant="ghost"
@@ -204,9 +211,7 @@ export default function EditProfile({ user }: { user: any }) {
                     </Button>
                   </div>
                 ))}
-                <Button variant="outline" onClick={addSocial}>
-                  Add Social Media
-                </Button>
+                <Button onClick={addSocial}>Add Social Media</Button>
               </div>
             </div>
           </div>
