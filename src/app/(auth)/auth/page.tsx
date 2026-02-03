@@ -15,7 +15,7 @@ import { authClient } from "@/lib/auth-client";
 import { useSearchParams } from "next/navigation";
 
 type AuthMode = "signin" | "signup";
-type UserType = "influencer" | "business";
+type UserType = "influencer" | "business" | "admin";
 const AuthForm = () => {
   const [mode, setMode] = useState<AuthMode>("signin");
   const [showPassword, setShowPassword] = useState(false);

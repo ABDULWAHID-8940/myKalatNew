@@ -67,7 +67,7 @@ export default function ContractsPage() {
       await updateContractStatus(
         contractId,
         actionType,
-        user?.role || "influencer",
+        user?.role === "business" ? "business" : "influencer",
       );
     } catch (error) {
       console.error("Failed to update contract status:", error);

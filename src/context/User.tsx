@@ -24,7 +24,7 @@ interface User {
   image: string;
   createdAt: Date;
   updatedAt: Date;
-  role: "influencer" | "business";
+  role: "influencer" | "business" | "admin";
   location: string;
   verified: boolean;
   socialMedia: SocialMedia;
@@ -81,7 +81,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           image: session.user.image || "",
           createdAt: session.user.createdAt,
           updatedAt: session.user.updatedAt,
-          role: session.user.role === "business" ? "business" : "influencer",
+          role:
+            session.user.role === "business"
+              ? "business"
+              : session.user.role === "admin"
+                ? "admin"
+                : "influencer",
           location: session.user.location || "Tecno, Ethiopia",
           verified: session.user.verified || false,
           socialMedia: parseSocialMedia(session.user.socialMedia || "{}"),

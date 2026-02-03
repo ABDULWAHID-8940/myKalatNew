@@ -84,7 +84,7 @@ export const useContracts = () => {
         | "terminated"
         | "influencerConfirmed"
         | "ownerConfirmed";
-      role: "influencer" | "business";
+      role: "influencer" | "business" | "admin";
     }
   >({
     mutationFn: ({ contractId, ...payload }) =>
@@ -117,7 +117,7 @@ export const useContracts = () => {
         | "terminated"
         | "influencerConfirmed"
         | "ownerConfirmed",
-      role: "influencer" | "business",
+      role: "influencer" | "business" | "admin",
     ) => updateStatusMutation.mutateAsync({ contractId, status, role }),
     getContract: (contractId: string) =>
       (contractsQuery.data ?? []).find((c) => c._id === contractId),
