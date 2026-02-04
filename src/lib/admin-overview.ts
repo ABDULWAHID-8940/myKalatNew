@@ -25,6 +25,9 @@ export type AdminUserSummary = {
   verified?: boolean;
   businessVerified?: boolean;
   onboarded?: boolean;
+  banned?: boolean;
+  banReason?: string | null;
+  banExpiresAt?: string;
   socialMedia?: AdminSocialMedia;
   createdAt?: string;
 };
@@ -102,6 +105,10 @@ function parseSocialMedia(value: unknown): AdminSocialMedia | undefined {
 
 function toUserSummary(doc: any): AdminUserSummary {
   if (!doc) return { id: "" };
+
+  const rawBanExpires =
+    doc.banExpiresAt ?? doc.banExpires ?? doc.banExpiresOn ?? doc.banUntil;
+
   return {
     id: String(doc._id ?? doc.id ?? ""),
     name: doc.name ?? null,
@@ -115,6 +122,14 @@ function toUserSummary(doc: any): AdminUserSummary {
     verified: doc.verified,
     businessVerified: doc.businessVerified,
     onboarded: doc.onboarded,
+    banned:
+      typeof doc.banned === "boolean"
+        ? doc.banned
+        : typeof doc.isBanned === "boolean"
+          ? doc.isBanned
+          : undefined,
+    banReason: doc.banReason ?? null,
+    banExpiresAt: safeIsoDate(rawBanExpires),
     socialMedia: parseSocialMedia(doc.socialMedia),
     createdAt: safeIsoDate(doc.createdAt),
   };

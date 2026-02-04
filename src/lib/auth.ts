@@ -4,6 +4,7 @@ import { sendEmail } from "./email-service";
 import { passkey } from "better-auth/plugins/passkey";
 import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
+import { admin } from "better-auth/plugins";
 
 await dbConnect();
 
@@ -122,5 +123,5 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [passkey()],
+  plugins: [passkey(), admin()],
 });
