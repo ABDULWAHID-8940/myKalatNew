@@ -112,11 +112,30 @@ function ProfilePage() {
               This page is restricted to business accounts only. Please ensure
               you're logged in with the correct account type.
             </p>
-            <Button onClick={() => refetch()} className="w-full">
-              Try Again
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => refetch()}>Try Again</Button>
+              <Button asChild>
+                <Link href="/auth?mode=login">login</Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLogoutModalOpen(true)}
+                className="bg-white/90 hover:bg-white border-red-200 hover:border-red-300 text-red-600 hover:text-red-700"
+              >
+                <LogOut size={16} className="mr-1" />
+                Logout
+              </Button>
+            </div>
           </CardContent>
         </Card>
+
+        <ConfirmLogoutModal
+          open={logoutModalOpen}
+          onCancel={() => setLogoutModalOpen(false)}
+          onConfirm={handleLogout}
+          isLoading={isLoggingOut}
+        />
       </div>
     );
   }

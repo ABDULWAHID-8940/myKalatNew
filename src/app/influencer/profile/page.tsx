@@ -121,8 +121,16 @@ function ProfilePage() {
               <Button onClick={() => refetch()} className="cursor-pointer">
                 Try Again
               </Button>
-              <Button asChild className="w-25">
+              <Button asChild>
                 <Link href="/auth?mode=login">login</Link>
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setLogoutModalOpen(true)}
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:block">Logout</span>
               </Button>
             </div>
           </CardContent>

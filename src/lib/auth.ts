@@ -4,7 +4,8 @@ import { sendEmail } from "./email-service";
 import { passkey } from "better-auth/plugins/passkey";
 import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
-import { admin } from "better-auth/plugins";
+import { admin as adminPlugin } from "better-auth/plugins";
+// import { ac, admin, influencer, business } from "@/lib/permission";
 
 await dbConnect();
 
@@ -123,5 +124,28 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [passkey(), admin()],
+  plugins: [
+    passkey(),
+    adminPlugin(),
+    //   {
+    //   ac,
+    //   roles: {
+    //     admin,
+    //     influencer,
+    //     business,
+    //   },
+    // }
+  ],
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => ({
+          data: {
+            ...user,
+            role: ctx?.body.role || "influencer",
+          },
+        }),
+      },
+    },
+  },
 });
