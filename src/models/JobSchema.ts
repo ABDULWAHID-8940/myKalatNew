@@ -6,6 +6,7 @@ export interface IJob extends Document {
   description: string;
   price: number;
   location?: string;
+  campaignPriority: string;
   socialMedia: {
     platform: "instagram" | "youtube" | "tiktok" | "telegram";
   }[];
@@ -30,6 +31,7 @@ const JobSchema = new Schema<IJob>(
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 }, // Ensure price is non-negative
     location: { type: String, trim: true },
+    campaignPriority: { type: String, required: true },
     socialMedia: [
       {
         platform: {
@@ -54,6 +56,7 @@ const JobSchema = new Schema<IJob>(
       type: Schema.Types.ObjectId,
       ref: "BusinessGoal",
     },
+     
     goalContributionPercent: {
       type: Number,
       min: 0,

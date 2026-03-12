@@ -2,8 +2,22 @@ import Footer from "@/components/footer";
 import InfluencerSection from "@/components/influencers";
 import JobPostingForm from "@/components/jobPostingForm";
 import Welcome from "@/components/wlcome";
+import { auth } from "@/lib/auth";
+import {redirect} from "next/navigation";
+import { headers } from "next/headers";
+export default async function Home() {
+const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-export default function Home() {
+  if (!session) {
+    redirect("/login");
+  }
+
+  if (session.user.role !== "business") {
+    redirect("/influencer");
+  }
+
   return (
     <div className=" mx-auto ">
       <Welcome />

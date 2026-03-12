@@ -1,6 +1,20 @@
 import JobLists from "@/components/JobLists";
+import { auth } from "@/lib/auth";
+import {redirect} from "next/navigation";
+import { headers } from "next/headers";
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-export default function Home() {
+  if (!session) {
+    redirect("/login");
+  }
+
+  if (session.user.role !== "influencer") {
+    redirect("/business");
+  }
+
   return (
     <div className="w-full gap-10 mx-auto ">
       <JobLists />

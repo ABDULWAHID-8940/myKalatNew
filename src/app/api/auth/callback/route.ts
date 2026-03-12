@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       break;
     case "admin":
       redirectPath = "/admin";
+      break;
     default:
       redirectPath = "/influencer";
       break;

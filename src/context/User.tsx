@@ -87,6 +87,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
               : session.user.role === "admin"
                 ? "admin"
                 : "influencer",
+          
           location: session.user.location || "Tecno, Ethiopia",
           verified: session.user.verified || false,
           socialMedia: parseSocialMedia(session.user.socialMedia || "{}"),

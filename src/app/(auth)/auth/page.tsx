@@ -90,6 +90,7 @@ const AuthForm = () => {
   };
 
   const signUp = async () => {
+    console.log(userType);
     await authClient.signUp.email(
       {
         email: email,

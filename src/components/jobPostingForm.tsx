@@ -8,24 +8,37 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateJobApplication } from "@/hooks/useJobs";
 import { useGoals } from "@/hooks/useGoals";
-import type { IGoal } from "@/types/api";
+import type { IGoal, IJob } from "@/types/api";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup
 } from "@/components/ui/select";
-import { SelectLabel, SelectGroup } from "@/components/ui/select";
+
 import { useUser } from "@/context/User";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check,Target,Users,Heart } from "lucide-react";
+// import { undefined } from "better-auth";
+const priorities = [
+  { id: "reachability", label: "Reachability", icon: Target,color: "text-blue-500", },
+  { id: "customer", label: "Customer Bringing", icon: Users,color: "text-green-500", },
+  { id: "engagement", label: "Engagement", icon: Heart,color: "text-purple-500", },
+];
 
 const JobPostingForm = () => {
+   const [selectedPriority, setSelectedPriority] = useState<string>("");
   const router = useRouter();
   const { user } = useUser();
   const createJobMutation = useCreateJobApplication();
+
+ const togglePriority = (id: string) => {
+  setSelectedPriority(id);
+};
 
   const {
     data: goalsData,
@@ -53,6 +66,7 @@ const JobPostingForm = () => {
     description: "",
     price: "",
     location: "Tecno",
+    campaignPriority: "",
     goalId: "",
     goalContributionPercent: "100",
     socialMedia: [] as Array<{
@@ -62,7 +76,7 @@ const JobPostingForm = () => {
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<
     Array<"instagram" | "tiktok" | "telegram">
-  >(["tiktok"]);
+  >(["tiktok"]);    
 
   const handlePlatformToggle = (
     platform: "instagram" | "tiktok" | "telegram",
@@ -80,6 +94,7 @@ const JobPostingForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,34 +108,40 @@ const JobPostingForm = () => {
         return;
       }
 
-      // Prepare job data with string types only
+      // Prepare job data with correct types
       const jobData = {
-        title: formData.title,
-        description: formData.description,
-        price: numericPrice,
-        location: formData.location,
-        goalId: formData.goalId || undefined, // Only include if selected
-        goalContributionPercent: formData.goalId
-          ? parseInt(formData.goalContributionPercent)
-          : undefined,
-        socialMedia: selectedPlatforms.map((platform) => ({ platform })), // Array of {platform: string}
-      };
+  title: formData.title,
+  description: formData.description,
+  price: numericPrice,
+  location: formData.location,
+  campaignPriority: selectedPriority || undefined,
+  goalId: formData.goalId || undefined,
+  goalContributionPercent:
+    formData.goalId && formData.goalContributionPercent
+      ? Number.parseInt(formData.goalContributionPercent)
+      : undefined,
+  socialMedia: selectedPlatforms.map((platform) => ({ platform })),
+};
 
-      await createJobMutation.mutate(jobData, {
-        onSuccess: () => {
-          setFormData({
-            title: "",
-            description: "",
-            price: "",
-            location: "Tecno",
-            goalId: "",
-            goalContributionPercent: "100",
-            socialMedia: [],
-          });
-          setSelectedPlatforms(["tiktok"]);
-          router.push("/business/myjobs");
-        },
-      });
+      createJobMutation.mutate(
+        jobData as Partial<IJob>,
+        {
+          onSuccess: () => {
+            setFormData({
+              title: "",
+              description: "",
+              price: "",
+              location: "Tecno",
+              campaignPriority: "",
+              goalId: "",
+              goalContributionPercent: "100",
+              socialMedia: [],
+            });
+            setSelectedPlatforms(["tiktok"]);
+            router.push("/business/myjobs");
+          },
+        }
+      );
     } catch (error) {
       console.error("Error posting job:", error);
     }
@@ -188,6 +209,32 @@ const JobPostingForm = () => {
                     />
                   </div>
                 </div>
+
+              <h3 className="font-semibold mb-2">Campaign Priorities *</h3>
+
+              <div className="flex gap-3 flex-wrap">
+              {priorities.map((p) => {
+                const Icon = p.icon;
+
+            return (
+                <button
+                   type="button"
+                   key={p.id}
+                   onClick={() => togglePriority(p.id)}
+                   className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition",
+                      selectedPriority === p.id
+                    ? "bg-blue-100 border-blue-500"
+                     : "bg-white border-gray-300 hover:bg-gray-50"
+                   )}
+                    >
+                  <Icon className={cn("w-4 h-4", p.color)} />
+                  {p.label}
+                </button>
+    );
+  })}
+</div>
+
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">

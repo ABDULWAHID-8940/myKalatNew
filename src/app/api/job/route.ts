@@ -14,13 +14,17 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-
+    if (session.user.role !== "business") {
+      console.log("User is not a business user");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
     const postedBy = session.user.id;
     const {
       title,
       description,
       price,
       location,
+      campaignPriority,
       socialMedia,
       statusInPercent,
       goalId,
@@ -68,6 +72,7 @@ export async function POST(request: NextRequest) {
       description,
       price,
       location,
+      campaignPriority,
       socialMedia,
       postedBy: new mongoose.Types.ObjectId(postedBy),
       ...(statusInPercent !== undefined
@@ -96,6 +101,10 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
+    if (session.user.role !== "business") {
+      console.log("User is not a business user");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
     const url = new URL(request.url);
     const excludeCompleted = url.searchParams.get("excludeCompleted");
 
@@ -105,6 +114,7 @@ export async function GET(request: NextRequest) {
     }
 
     const jobs = await Job.find(query).lean();
+    console.log("Fetched jobs:", jobs);
 
     return NextResponse.json(jobs, { status: 200 });
   } catch (error) {

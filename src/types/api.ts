@@ -16,6 +16,7 @@ export interface IJob {
   description: string;
   price: number;
   location?: string;
+  campaignPriority : string;
   socialMedia: {
     platform: "instagram" | "youtube" | "tiktok" | "telegram";
   }[];

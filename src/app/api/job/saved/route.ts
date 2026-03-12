@@ -12,6 +12,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+      
+    // console.log("User session:", session.user);
+    // console.log("Saved jobs IDs:", session.user.savedJobs);
+    console.log("role:", session.user.role);
+    if (session.user.role !== "business") {
+      console.log("User is not a business user");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
     const savedJobs = session.user.savedJobs || [];
 
     const jobs = await Job.find({
@@ -21,8 +29,10 @@ export async function GET(request: NextRequest) {
     })
       .sort({ createdAt: -1 })
       .lean();
-
+    
+    console.log("Saved jobs:", jobs);
     return NextResponse.json(
+    
       { data: jobs, message: "Jobs fetched successfully" },
       { status: 200 }
     );
