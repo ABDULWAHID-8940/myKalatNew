@@ -1,8 +1,8 @@
-import dbConnect from "@/lib/mongoose";
-import { User } from "@/models/UserSchema";
-import Job from "@/models/JobSchema";
-import Proposal from "@/models/ProposalSchema";
-import Contract from "@/models/ContractSchema";
+// import dbConnect from "@/lib/mongoose";
+// import { User } from "@/models/UserSchema";
+// import Job from "@/models/JobSchema";
+// import Proposal from "@/models/ProposalSchema";
+// import Contract from "@/models/ContractSchema";
 
 export type AdminSocialMedia = Record<
   string,
@@ -136,6 +136,11 @@ function toUserSummary(doc: any): AdminUserSummary {
 }
 
 export async function getAdminOverview(): Promise<AdminOverview> {
+  const dbConnect = (await import("@/lib/mongoose")).default;
+  const { User } = await import("@/models/UserSchema");
+  const Job = (await import("@/models/JobSchema")).default;
+  const Proposal = (await import("@/models/ProposalSchema")).default;
+  const Contract = (await import("@/models/ContractSchema")).default;
   await dbConnect();
 
   const usersRaw = await User.find({}).lean();
