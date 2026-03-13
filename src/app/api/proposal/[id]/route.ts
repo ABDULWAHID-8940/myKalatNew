@@ -35,9 +35,9 @@ export async function PATCH(
 
     if (!validation.success) {
       return NextResponse.json(
-        { message: "Validation failed", errors: validation.error.errors },
-        { status: 400 },
-      );
+            { message: "Validation failed", errors: validation.error.issues },
+            { status: 400 }
+         );
     }
 
     const { status } = validation.data;

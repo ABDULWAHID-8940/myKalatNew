@@ -65,7 +65,7 @@ const ContractSchema = new mongoose.Schema(
 );
 
 // Middleware for updating status
-ContractSchema.pre("save", function (next) {
+ContractSchema.pre("save", async function (this: any) {
   // Set activation date only when influencer sets to active
   if (
     this.isModified("status") &&
@@ -95,7 +95,7 @@ ContractSchema.pre("save", function (next) {
     this.terminatedAt = new Date();
   }
 
-  next();
+  // next();
 });
 
 export default mongoose.models.Contract ||
