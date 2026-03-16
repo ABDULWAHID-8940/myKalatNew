@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+export const dynamic = "force-dynamic";
 type MongooseCache = {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
