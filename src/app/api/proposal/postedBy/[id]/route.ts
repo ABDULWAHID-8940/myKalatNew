@@ -3,7 +3,7 @@ import Job from "@/models/JobSchema"; // Import the Proposal model
 import Proposal from "@/models/ProposalSchema"; // Import the Job model
 import dbConnect from "@/lib/mongoose"; // Utility to connect to MongoDB
 import mongoose from "mongoose"; // For ObjectId validation
-
+export const dynamic = "force-dynamic";
 // GET: Fetch proposals for jobs posted by a specific user
 export async function GET(
   request: NextRequest,

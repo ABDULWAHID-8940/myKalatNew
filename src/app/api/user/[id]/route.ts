@@ -3,7 +3,7 @@ import { User } from "@/models/UserSchema";
 import dbConnect from "@/lib/mongoose";
 import { auth } from "@/lib/auth";
 import mongoose from "mongoose"; // For ObjectId validation
-
+export const dynamic = "force-dynamic";
 // GET: Fetch proposals (all or filtered by jobId or influencerId)
 export async function GET(
   request: NextRequest,

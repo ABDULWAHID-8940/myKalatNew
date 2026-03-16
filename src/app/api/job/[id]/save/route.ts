@@ -4,7 +4,7 @@ import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
 import { auth } from "@/lib/auth";
 import { User } from "@/models/UserSchema";
-
+export const dynamic = "force-dynamic";
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

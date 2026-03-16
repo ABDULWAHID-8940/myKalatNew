@@ -5,7 +5,7 @@ import { User } from "@/models/UserSchema";
 import dbConnect from "@/lib/mongoose";
 import { auth } from "@/lib/auth";
 import mongoose from "mongoose";
-
+export const dynamic = "force-dynamic";
 // POST: Create a new proposal
 export async function POST(request: NextRequest) {
   await dbConnect();

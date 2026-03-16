@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import Earnings from "@/models/EarningSchema";
 import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
-
+export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
   await dbConnect();
 

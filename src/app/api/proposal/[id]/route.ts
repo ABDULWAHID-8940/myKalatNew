@@ -5,7 +5,7 @@ import dbConnect from "@/lib/mongoose"; // Utility to connect to MongoDB
 import { z } from "zod"; // For input validation
 import mongoose from "mongoose"; // For ObjectId validation
 import { auth } from "@/lib/auth";
-
+export const dynamic = "force-dynamic";
 // Define validation schema for PATCH request
 const UpdateProposalSchema = z.object({
   status: z.enum(["pending", "accepted", "rejected"]), // Allowed statuses

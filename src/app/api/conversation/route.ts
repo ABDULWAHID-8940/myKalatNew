@@ -3,6 +3,7 @@ import Conversation from "@/models/ConversationSchema";
 import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
 import { pusherServer } from "@/lib/pusher";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   await dbConnect();

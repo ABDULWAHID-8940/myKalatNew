@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Contract from "@/models/ContractSchema";
 import mongoose from "mongoose";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   await dbConnect();

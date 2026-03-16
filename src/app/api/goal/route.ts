@@ -3,7 +3,7 @@ import dbConnect from "@/lib/mongoose";
 import mongoose from "mongoose";
 import BusinessGoal from "@/models/Goal";
 import { auth } from "@/lib/auth";
-
+export const dynamic = "force-dynamic";
 // POST /api/goal - create a new business goal
 export async function POST(request: NextRequest) {
   await dbConnect();

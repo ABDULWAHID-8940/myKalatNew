@@ -5,7 +5,7 @@ import Message from "@/models/MessageSchema";
 import Conversation from "@/models/ConversationSchema";
 import mongoose from "mongoose";
 import { pusherServer } from "@/lib/pusher";
-
+export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   await dbConnect();
 

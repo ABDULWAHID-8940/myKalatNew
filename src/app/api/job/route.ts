@@ -5,7 +5,7 @@ import mongoose from "mongoose"; // For ObjectId validation
 import Proposal from "@/models/ProposalSchema"; // Adjust the path as needed
 import { completeJob } from "@/lib/jobService";
 import { auth } from "@/lib/auth";
-
+export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
   await dbConnect();
 

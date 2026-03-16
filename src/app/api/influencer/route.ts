@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/mongoose";
 import { NextResponse } from "next/server";
 import { User } from "@/models/UserSchema";
-
+export const dynamic = "force-dynamic";
 export async function GET() {
   await dbConnect();
 

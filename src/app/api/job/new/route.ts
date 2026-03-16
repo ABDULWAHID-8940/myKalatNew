@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import Job, { IJob } from "@/models/JobSchema";
 import dbConnect from "@/lib/mongoose";
 import { auth } from "@/lib/auth";
-
+export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   await dbConnect();
   try {

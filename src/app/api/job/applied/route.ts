@@ -3,7 +3,7 @@ import Job from "@/models/JobSchema";
 import dbConnect from "@/lib/mongoose";
 import { auth } from "@/lib/auth";
 import mongoose from "mongoose";
-
+export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   await dbConnect();
   try {
