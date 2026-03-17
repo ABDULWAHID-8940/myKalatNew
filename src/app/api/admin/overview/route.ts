@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getAdminOverview } from "@/lib/admin-overview";
 
+// export const dynamic = "force-dynamic";
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });

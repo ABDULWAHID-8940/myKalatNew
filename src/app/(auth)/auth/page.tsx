@@ -96,7 +96,7 @@ const AuthForm = () => {
         email: email,
         password: password,
         name: name,
-        role: userType,
+        // role: userType,
         callbackURL: "/api/auth/callback",
       },
       {

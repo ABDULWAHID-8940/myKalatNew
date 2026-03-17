@@ -4,6 +4,9 @@
 // import Proposal from "@/models/ProposalSchema";
 // import Contract from "@/models/ContractSchema";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export type AdminSocialMedia = Record<
   string,
   {
