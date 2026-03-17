@@ -20,6 +20,7 @@ export const auth = betterAuth({
     "http://localhost:3000",
     "http://172.22.84.96:3000",
     "http://172.22.85.157:3000",
+      "https://*.vercel.app",
     "https://www.mykalat.com",
     "https://promolink-git-feature-chat-fikiryilkal-tages-projects.vercel.app",
     "https://promolink-git-feature-business-fikiryilkal-tages-projects.vercel.app",
