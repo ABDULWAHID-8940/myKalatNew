@@ -67,8 +67,6 @@ const JobPostingForm = () => {
     price: "",
     location: "Tecno",
     campaignPriority: "",
-    goalId: "",
-    goalContributionPercent: "100",
     socialMedia: [] as Array<{
       platform: "instagram" | "tiktok" | "telegram";
     }>,
@@ -115,11 +113,6 @@ const JobPostingForm = () => {
   price: numericPrice,
   location: formData.location,
   campaignPriority: selectedPriority || undefined,
-  goalId: formData.goalId || undefined,
-  goalContributionPercent:
-    formData.goalId && formData.goalContributionPercent
-      ? Number.parseInt(formData.goalContributionPercent)
-      : undefined,
   socialMedia: selectedPlatforms.map((platform) => ({ platform })),
 };
 
@@ -133,8 +126,6 @@ const JobPostingForm = () => {
               price: "",
               location: "Tecno",
               campaignPriority: "",
-              goalId: "",
-              goalContributionPercent: "100",
               socialMedia: [],
             });
             setSelectedPlatforms(["tiktok"]);
@@ -236,67 +227,7 @@ const JobPostingForm = () => {
 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="goalId">
-                      Associate with Goal (Optional)
-                    </Label>
-                    <Select
-                      value={formData.goalId}
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, goalId: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a goal to contribute to" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {goalsLoading && (
-                          <SelectGroup>
-                            <SelectLabel>Loading goals...</SelectLabel>
-                          </SelectGroup>
-                        )}
-                        {!goalsLoading && goals.length === 0 && (
-                          <SelectGroup>
-                            <SelectLabel>No goals available</SelectLabel>
-                          </SelectGroup>
-                        )}
-                        {!goalsLoading &&
-                          goals
-                            .filter(
-                              (g): g is IGoal & { _id: string } =>
-                                typeof g._id === "string" && g._id.length > 0,
-                            )
-                            .map((goal) => (
-                              <SelectItem key={goal._id} value={goal._id}>
-                                {formatGoalLabel(goal)}
-                              </SelectItem>
-                            ))}
-                      </SelectContent>
-                    </Select>
-                    {goalsError && (
-                      <p className="text-xs text-red-600 mt-1">{goalsError}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="goalContributionPercent">
-                      Goal Contribution (%)
-                    </Label>
-                    <Input
-                      id="goalContributionPercent"
-                      name="goalContributionPercent"
-                      type="number"
-                      min="1"
-                      max="100"
-                      placeholder="100"
-                      value={formData.goalContributionPercent}
-                      onChange={handleChange}
-                      disabled={!formData.goalId}
-                    />
-                  </div>
-                </div>
-
+               
                 <div className="space-y-2">
                   <Label>Required Social Media Platforms *</Label>
                   <div className="rounded-md border bg-background p-2">

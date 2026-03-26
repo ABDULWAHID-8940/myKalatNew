@@ -38,6 +38,7 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "influencer",
+        input: true, 
       },
       coverImage: {
         type: "string",
@@ -138,15 +139,27 @@ export const auth = betterAuth({
     // }
   ],
   databaseHooks: {
-    user: {
-      create: {
-        before: async (user, ctx) => ({
+  user: {
+    create: {
+      before: async (user, ctx) => {
+        const userType = ctx?.body?.userType;
+
+        if (!userType) {
+          throw new Error("User type is required");
+        }
+        console.log("Creating user with type:", userType);
+
+        return {
           data: {
             ...user,
-            role: ctx?.body.role || "influencer",
+            role:
+              userType === "business"
+                ? "business"
+                : "influencer", // never trust blindly
           },
-        }),
+        };
       },
     },
   },
+},
 });

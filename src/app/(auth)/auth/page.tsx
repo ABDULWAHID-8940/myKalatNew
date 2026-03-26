@@ -90,15 +90,15 @@ const AuthForm = () => {
   };
 
   const signUp = async () => {
-    console.log(userType);
+    console.log("userType from frontend is ",userType);
     await authClient.signUp.email(
       {
         email: email,
         password: password,
         name: name,
-        // role: userType,
+        userType,
         callbackURL: "/api/auth/callback",
-      },
+      }as any,
       {
         onRequest: () => {
           console.log("loading...");
